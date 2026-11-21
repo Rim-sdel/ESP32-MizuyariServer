@@ -9,7 +9,7 @@
 void setup() {
   Serial.begin(115200);
   delay(1000);
-
+  Serial.println("--------------------");
   if (!LFSSetup()) {
     return;
   }
@@ -22,6 +22,7 @@ void setup() {
 #ifdef DBGG
   listRootFiles();
 #endif
+  Serial.println("--------------------");
 }
 
 void loop() {

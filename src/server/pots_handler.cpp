@@ -2,7 +2,6 @@
 #include "data_struct.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <new>
 #include <string>
 
 JsonDocument loadPots() {
@@ -44,7 +43,7 @@ void updatePots(const int id, const int moisture, std::string lastSeen) {
     }
   }
   savePots(doc);
-  Serial.printf("pot %d: Updated.\n", id);
+  Serial.printf("[POT_HANDLER] Pot%d: Updated.\n", id);
 }
 
 void updatePotName(const int id, const String newName) {
@@ -58,7 +57,7 @@ void updatePotName(const int id, const String newName) {
     }
   }
   savePots(doc);
-  Serial.printf("pot %d: Name changed.\n", id);
+  Serial.printf("[POT_HANDLER] Pot%d: Name changed.\n", id);
 }
 
 std::pair<std::string, int> getPotData(const int id) {

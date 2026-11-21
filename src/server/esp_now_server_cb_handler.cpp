@@ -28,7 +28,7 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
   struct_msg recvData;
   std::string time = getTime();
   memcpy(&recvData, data, sizeof(recvData));
-  Serial.printf("%s - [%d] moisture: %d\n", time.c_str(), recvData.ID, recvData.moisture);
+  Serial.printf("[RECV_INFO] %s - [%d] moisture: %d\n", time.c_str(), recvData.ID, recvData.moisture);
 
   updatePots(recvData.ID, recvData.moisture, time);
   if (recvData.moisture > thresholdSoil) {

@@ -39,10 +39,10 @@ int getNewID(JsonArray &arr) {
 
 bool giveNewID(const uint8_t mac[6], const int newID) {
   if (esp_now_send(mac, (uint8_t *)&newID, sizeof(newID)) == ESP_OK) {
-    Serial.println("Succeed give new ID.");
+    Serial.println("[ID_REGISTER] Succeed give new ID.");
     return true;
   }
-  Serial.println("Failed give new ID. Stop registering.");
+  Serial.println("[ID_REGISTER] Failed give new ID. Stop registering.");
   return false;
 }
 
@@ -53,7 +53,7 @@ void IDRegister(const uint8_t mac[6]) {
 
   for (JsonObject obj : arr) {
     if (obj["mac"].as<String>() == macStr) {
-      Serial.println("Already registered, Skipping.");
+      Serial.println("[ID_REGISTER] Already registered, Skipping.");
       return;
     }
   }
@@ -79,6 +79,6 @@ void IDRegister(const uint8_t mac[6]) {
   newDevice["mac"] = macStr;
   savePots(doc);
 
-  Serial.print("New device registered: ");
+  Serial.print("[ID_REGISTER] New device registered: ");
   Serial.printf("ID - %d, MAC - %s\n", newID, macStr.c_str());
 }
