@@ -70,6 +70,12 @@ void IDRegister(const uint8_t mac[6]) {
 
   JsonObject newDevice = arr.add<JsonObject>();
   newDevice["ID"] = newID;
+  newDevice["name"] = "";
+  newDevice["moisture"] = "";
+  newDevice["moist"] = "";
+  newDevice["dry"] = "";
+  newDevice["threshold"] = "";
+  newDevice["lastSeen"] = "";
   newDevice["mac"] = macStr;
   savePots(doc);
 

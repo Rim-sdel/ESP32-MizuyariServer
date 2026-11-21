@@ -1,3 +1,3 @@
 #pragma once
 
-void sendDiscordMsg();
+void sendDiscordMsg(const int notifyID);

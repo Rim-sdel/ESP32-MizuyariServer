@@ -29,6 +29,7 @@ void loop() {
 
   if (shouldNotify) {
     shouldNotify = false;
-    sendDiscordMsg();
+    sendDiscordMsg(notifyID);
+    notifyID = -1;
   }
 }

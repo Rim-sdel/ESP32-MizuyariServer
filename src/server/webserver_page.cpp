@@ -3,6 +3,7 @@
 #include "id_register.h"
 #include "pots_handler.h"
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <WebServer.h>
 
 WebServer server(80);
@@ -10,7 +11,7 @@ const String page = R"del(
 <!doctype html>
 <html>
   <head>
-    <meta charset="UTF-8" />
+	<meta charset="UTF-8">
     <title>ESP32 Web Server</title>
   </head>
   <body>
@@ -32,7 +33,7 @@ const String page = R"del(
           div.innerHTML = `
 			<span class="id">${pot.ID}</span> 
 			<span class="pot-name">${pot.name || '名前未定'}</span>
-			<button onclick="renamePot(${pot.name})">名前変更</button><br>
+			<button onclick="renamePot(${pot.ID})">名前変更</button><br>
 			<span class="moisture">湿度: ${pot.moisture || '未取得'}</span>
 			<span class="last-seen">最終取得: ${pot.lastSeen || '不明'}</span><br>
 			<span class="mac">MAC: ${pot.mac}</span>
@@ -41,6 +42,19 @@ const String page = R"del(
 		container.appendChild(div);
 		});
 	  }
+
+	  // --- 名前変更ボタンの処理をここに書く ---
+	  function renamePot(id) {
+		const newName = prompt("新しい名前を入力:");
+		if(!newName) return;
+
+		fetch("/rename", {
+		  method: "POST",
+		  headers: {"Content-Type": "application/json"},
+		  body: JSON.stringify({id: id, name: newName})
+		}).then(() => loadPots());
+	  }
+
 	  loadPots();
     </script>
   </body>
@@ -53,9 +67,21 @@ void getPotsData() {
   String res = loadPotsStr();
   server.send(200, "text/plain", res);
 }
+
+void handleRename() {
+  JsonDocument doc;
+  deserializeJson(doc, server.arg("plain"));
+  int id = doc["id"];
+  const char *newName = doc["name"];
+
+  updatePotName(id, String(newName));
+  server.send(200, "text/plain", "OK");
+}
+
 void serverSetup() {
   server.on("/", handleRoot);
   server.on("/pots", getPotsData);
+  server.on("/rename", HTTP_POST, handleRename);
   server.begin();
   Serial.println("Web server start!!");
 }

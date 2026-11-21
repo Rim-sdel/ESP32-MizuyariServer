@@ -19,6 +19,16 @@ std::string getTime() {
   return timeString;
 }
 
+unsigned long getUnixTime() {
+  time_t now = time(&now);
+
+  if (now < 1000000000) {
+    Serial.println("Failed to get local time.");
+    return 0; // 失敗時は 0 を返す
+  }
+  return now;
+}
+
 void timeSetup() {
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
   delay(2000);

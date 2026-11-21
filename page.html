@@ -1,7 +1,5 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
     <title>ESP32 Web Server</title>
   </head>
   <body>
@@ -21,14 +19,20 @@
           const div = document.createElement("div");
           div.className = "pot";
           div.innerHTML = `
-			<span class="pot-name">${pot.name}</span> - 湿度: ${pot.moisture}
-			<button onclick="renamePot(${pot.name})">名前変更</button>
-			最終取得: <span class ="last-seen">${pot.lastSeen}</span>
-			// 鉢を有効にしたり無効にしたり、削除したりするボタンをつくりたい
+			<span class="id">${pot.ID}</span> 
+			<span class="pot-name">${pot.name || '名前未定'}</span>
+			<button onclick="renamePot(${pot.ID})">名前変更</button><br>
+			<span class="moisture">湿度: ${pot.moisture || '未取得'}</span>
+			<span class="last-seen">最終取得: ${pot.lastSeen || '不明'}</span><br>
+			<span class="mac">MAC: ${pot.mac}</span>
+            <!--鉢を有効にしたり無効にしたり、削除したりするボタンをつくりたい-->
 		  `;
-          container.appendChild(div);
-        });
-      }
+		container.appendChild(div);
+		});
+	  }
+
+	  // --- 名前変更ボタンの処理をここに書く ---
+	  loadPots();
     </script>
   </body>
 </html>

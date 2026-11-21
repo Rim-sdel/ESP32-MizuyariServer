@@ -1,4 +1,5 @@
 #include "get_time.h"
+#include "pots_handler.h"
 #include "secrets.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -7,8 +8,10 @@
 #include <WiFiClientSecure.h>
 #include <string>
 
-String buildMsg() {
-  std::string content = "💧💧💧水切れ！💧💧💧\n**nameをここに代入**\n🌱土の水分:（センサー値）％🌱\n\n検知時刻: " + getTime();
+String buildMsg(const int notifyID) {
+  auto [name, moist] = getPotData(notifyID);
+  std::string moisture = std::to_string(moist);
+  std::string content = "💧💧💧水切れ！💧💧💧\n**" + name + "**\n🌱土の水分: " + moisture + "🌱\n\n検知時刻: " + getTime();
 
   JsonDocument doc;
   doc["content"] = content;
@@ -20,7 +23,9 @@ String buildMsg() {
   return jsonPayload;
 }
 
-void sendDiscordMsg() {
+void sendDiscordMsg(const int notifyID) {
+  if (notifyID == -1)
+    return;
   if (WiFi.status() == WL_CONNECTED) {
     WiFiClientSecure client;
     client.setInsecure();
@@ -31,7 +36,7 @@ void sendDiscordMsg() {
     // http.setTimeout(10000); // 10秒
     http.addHeader("Content-Type", "application/json");
 
-    int httpCode = http.POST(buildMsg());
+    int httpCode = http.POST(buildMsg(notifyID));
 
     if (httpCode > 0) {
       Serial.printf("Webhook Send. HTTP code: %d\n", httpCode);
