@@ -1,14 +1,14 @@
 #include "esp_now_server_cb_handler.h"
 #include "esp_now_setup.h"
 #include "get_time.h"
-#include "pots_manage.h"
+#include "littlefs_setup.h"
+#include "webhook.h"
+#include "webserver_page.h"
 #include <Arduino.h>
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-
-  timeSetup();
 
   if (!LFSSetup()) {
     return;
@@ -16,9 +16,19 @@ void setup() {
 
   espNowSetup();
   espNowServerCbRegister();
+
+  timeSetup();
+  serverSetup();
 #ifdef DBGG
   listRootFiles();
 #endif
 }
 
-void loop() {}
+void loop() {
+  serverHandle();
+
+  if (shouldNotify) {
+    shouldNotify = false;
+    sendDiscordMsg();
+  }
+}

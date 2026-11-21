@@ -1,5 +1,4 @@
-#include "LittleFS.h"
-#include "data_struct.h"
+#include "pots_handler.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <cstdio>
@@ -13,27 +12,6 @@ String macToString(const uint8_t *senderMac) {
   Serial.print("Sender: ");
   Serial.println(macStr);
   return String(macStr);
-}
-
-JsonDocument loadPots() {
-  JsonDocument doc;
-  File file = LittleFS.open(POTS_FILE, "r");
-  if (file) {
-    deserializeJson(doc, file);
-    file.close();
-  }
-  if (!doc.is<JsonArray>()) {
-    doc.to<JsonArray>();
-  }
-  return doc;
-}
-
-void savePots(JsonDocument &doc) {
-  File file = LittleFS.open(POTS_FILE, "w");
-  if (file) {
-    serializeJson(doc, file);
-    file.close();
-  }
 }
 
 bool addPeerSensor(const uint8_t addr[6]) {

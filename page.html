@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>ESP32 Web Server</title>
+  </head>
+  <body>
+    <h1>ESP32 HTTP Mizuyari Server...</h1>
+    <h2>鉢リスト</h2>
+    <div id="potsList">読込み中…</div>
+
+    <script>
+      // --- pots.jsonからリストを取得して表示 --
+      async function loadPots() {
+        const res = await fetch("/pots");
+        const pots = await res.json();
+        const container = document.getElementById("potsList");
+        container.innerHTML = "";
+
+        pots.forEach((pot) => {
+          const div = document.createElement("div");
+          div.className = "pot";
+          div.innerHTML = `
+			<span class="pot-name">${pot.name}</span> - 湿度: ${pot.moisture}
+			<button onclick="renamePot(${pot.name})">名前変更</button>
+			最終取得: <span class ="last-seen">${pot.lastSeen}</span>
+			// 鉢を有効にしたり無効にしたり、削除したりするボタンをつくりたい
+		  `;
+          container.appendChild(div);
+        });
+      }
+    </script>
+  </body>
+</html>
