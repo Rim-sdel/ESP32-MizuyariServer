@@ -6,7 +6,8 @@
 
 // === ピン設定 ===
 #ifdef BOARD_C3
-#define SENSOR 4
+#define SENSOR 0
+#define SENSOR_POWER 1
 #define BUTTON 3
 #endif
 

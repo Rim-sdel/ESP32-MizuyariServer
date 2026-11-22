@@ -1,5 +1,6 @@
 #include "board_config.h"
-#include "esp_now_setup.h"
+#include "esp_now_sensor_setup.h"
+#include "sensor_handler.h"
 #include <Arduino.h>
 
 bool lastButtonState = HIGH;
@@ -8,6 +9,8 @@ unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 50;
 
 void setup() {
+  pinMode(SENSOR_POWER, OUTPUT);
+  digitalWrite(SENSOR_POWER, LOW);
   pinMode(SENSOR, INPUT);
   pinMode(BUTTON, INPUT_PULLUP);
 
@@ -27,8 +30,7 @@ void loop() {
   if ((millis() - lastDebounceTime) > debounceDelay) {
     if (stableState == HIGH && currentButtonState == LOW) {
       Serial.println("ぽちっ");
-      int soil = analogRead(SENSOR);
-      sendData(soil);
+      sendData(getSoil());
     }
     stableState = currentButtonState;
   }

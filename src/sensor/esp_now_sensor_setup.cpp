@@ -1,13 +1,13 @@
 #include "board_config.h"
 #include "data_struct.h"
 #include "secrets.h"
+#include "sensor_handler.h"
 #include <Arduino.h>
+#include <Preferences.h>
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-#ifdef SENSOR_MACHINE
-#include <Preferences.h>
 Preferences pref;
 const char *myID = "myID";
 volatile bool isSending = false;
@@ -31,11 +31,18 @@ int getMyId() {
   return savedID;
 }
 
+bool sendData(const int soil, enum MsgType type) {
+  sensorMsg sendMsg;
+  sendMsg = {};
+  sendMsg.header.type = type;
+  sendMsg.header.ID = getMyId();
+  sendMsg.moisture = soil;
+  return esp_now_send(serverAdrr, (const uint8_t *)&sendMsg, sizeof(sendMsg)) == ESP_OK;
+}
+
 void setChannel() {
   // ダミーを各チャネルに送信して、サーバー機とチャネルを合わせる
   // IDが割り振られていればそれを使って名乗る
-  int myID;
-  myID = getMyId();
 
   wifi_second_chan_t NONE = WIFI_SECOND_CHAN_NONE;
   esp_now_register_send_cb(dummySent);
@@ -45,7 +52,7 @@ void setChannel() {
     isSending = true;
     isChannel = false;
 
-    if (esp_now_send(serverAdrr, (uint8_t *)&myID, sizeof(myID)) != ESP_OK) {
+    if (!sendData(getSoil(), MSG_SENSOR_DUMMY)) {
       Serial.printf("Channel %d: Send failed.\n", i);
       isSending = false;
       continue;
@@ -84,25 +91,7 @@ void onRecvSensor(const esp_now_recv_info_t *info, const uint8_t *data, int len)
       // server側の削除処理を今度書く！！！
     }
   }
-
-  // typedef struct msg {
-  //   int ID; // 登録時以外の通信にIDっているの？
-  //   unsigned long nextWakeTime;
-  // } msg;
-  // msg newMsg;
-  // memcpy(&newMsg, data, sizeof(newMsg));
-
-  // nextWakeTimeをタイマーとしてセットしてDeepSleepを始める処理を書く
 }
-
-void sendData(const int soil) {
-  struct_msg sendData;
-  sendData = {};
-  sendData.ID = getMyId();
-  sendData.moisture = soil;
-  Serial.println(esp_now_send(serverAdrr, (const uint8_t *)&sendData, sizeof(sendData)) == ESP_OK ? "Send success" : "Send fail");
-}
-#endif
 
 bool espOk() {
   if (esp_now_init() == ESP_OK) {
@@ -116,25 +105,6 @@ bool espOk() {
 
 void espNowSetup() {
   WiFi.mode(WIFI_STA);
-
-#ifdef SERVER_MACHINE
-  WiFi.setHostname("esp32-moisture");
-  WiFi.begin(ssid, pass);
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  WiFi.setSleep(false);
-  Serial.printf("\nConnected.\nChannel: %d\n", (int)WiFi.channel());
-  Serial.print("localIP: ");
-  Serial.print(WiFi.localIP());
-  Serial.println("");
-
-  if (!espOk()) {
-    return;
-  }
-#endif
 
 #ifdef SENSOR_MACHINE
 #ifdef BOARD_C3

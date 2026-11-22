@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ctime>
 #include <string>
 #include <time.h>
 
@@ -6,6 +7,14 @@ const char *ntpServer1 = "ntp.nict.jp";
 const char *ntpServer2 = "time.google.com";
 const long gmtOffset_sec = 32400;
 const int daylightOffset_sec = 0;
+
+std::string getNextRun(time_t nextWake) {
+  struct tm next;
+  localtime_r(&nextWake, &next);
+  char timeString[50];
+  strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", &next);
+  return timeString;
+}
 
 std::string getTime() {
   struct tm timeinfo;
