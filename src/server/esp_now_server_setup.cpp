@@ -3,6 +3,9 @@
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
+#include <pots_handler.h>
+
+void peerSetup() { JsonDocument doc = loadPots(); }
 
 bool espOk() {
   if (esp_now_init() == ESP_OK) {

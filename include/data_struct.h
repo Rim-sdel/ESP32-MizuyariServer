@@ -37,7 +37,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
   msgHeader header;
-  uint64_t nextRun;
+  uint64_t sleepTime;
 } serverMsg;
 
 typedef struct __attribute__((packed)) {

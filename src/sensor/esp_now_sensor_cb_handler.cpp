@@ -10,6 +10,9 @@
 Preferences pref;
 const char *myID = "myID";
 
+volatile bool shouldSleep = false;
+uint64_t sleepTime;
+
 int getMyId() {
   pref.begin(myID, true);
   int savedID = pref.getInt(myID, -1);
@@ -66,6 +69,11 @@ void onRecvSensor(const esp_now_recv_info_t *info, const uint8_t *data, int len)
     return;
   }
   case MSG_SERVER_RES: {
+    serverMsg msg;
+    memcpy(&msg, data, sizeof(msg));
+    sleepTime = msg.sleepTime;
+    shouldSleep = true;
+    return;
   }
   }
 }

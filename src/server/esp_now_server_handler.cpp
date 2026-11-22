@@ -10,8 +10,17 @@
 #include <esp_now.h>
 
 volatile bool shouldNotify = false;
-int thresholdSoil = 1000;
+int thresholdSoil = 3800;
 int notifyID = -1;
+
+void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
+  serverMsg msg;
+  msg.header.type = MSG_SERVER_RES;
+  msg.header.ID = id;
+  msg.sleepTime = getSleepTime();
+  Serial.print("[SERVER] Send next wake time: ");
+  Serial.println(esp_now_send(senderMac, (const uint8_t *)&msg, sizeof(msg)) == ESP_OK ? "SUCCESS" : "FAIL");
+}
 
 void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
   msgHeader header;
@@ -26,18 +35,20 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
     return;
   }
   case MSG_SENSOR_DATA: {
-    std::string nowTime = getTime();
+    time_t nowTime = getTime();
+    std::string nowTimeStr = getTimeString(nowTime);
     sensorMsg msg;
     memcpy(&msg, data, sizeof(sensorMsg));
+    const uint8_t *senderMac = info->src_addr;
 
     if (int(msg.header.ID) == ID_UNREGISTERED) {
-      const uint8_t *senderMac = info->src_addr;
-      IDRegister(senderMac, msg.moisture, nowTime);
+      IDRegister(senderMac, msg.moisture, nowTimeStr);
     } else {
-      updatePots(msg.header.ID, msg.moisture, nowTime);
-      Serial.printf("[RECV_INFO] %s - [%d] moisture: %d\n", nowTime.c_str(), msg.header.ID, msg.moisture);
+      updatePots(msg.header.ID, msg.moisture, nowTimeStr);
+      Serial.printf("[RECV_INFO] %s - [%d] moisture: %d\n", nowTimeStr.c_str(), msg.header.ID, msg.moisture);
     }
-    // sendNextRun(msg.header.ID, nowTime); // 今からこの関数をどこかに作る
+
+    sendNextWake(msg.header.ID, senderMac);
     break;
   }
   }
@@ -46,6 +57,7 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
   //   shouldNotify = true;
   //   notifyID = recvData.ID;
   // }
+  Serial.println("--------------------");
 }
 
 void espNowServerCbRegister() {

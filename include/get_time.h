@@ -1,6 +1,10 @@
 #pragma once
+#include <cstdint>
+#include <ctime>
 #include <string>
 
-std::string getTime();
-unsigned long getUnixTime();
+uint64_t getSleepTime();
+std::string getNextWake(time_t now, time_t sleepTime);
+time_t getTime();
+std::string getTimeString(time_t time);
 void timeSetup();

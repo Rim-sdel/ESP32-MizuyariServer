@@ -11,7 +11,8 @@
 String buildMsg(const int notifyID) {
   auto [name, moist] = getPotData(notifyID);
   std::string moisture = std::to_string(moist);
-  std::string content = "💧💧💧水切れ！💧💧💧\n**" + name + "**\n🌱土の水分: " + moisture + "🌱\n\n検知時刻: " + getTime();
+  // std::string content = "💧💧💧水切れ！💧💧💧\n**" + name + "**\n🌱土の水分: " + moisture + "🌱\n\n検知時刻: " + getTime();
+  std::string content = "💧💧💧水切れ！💧💧💧\n**" + name + "**\n🌱土の水分: " + moisture + "🌱";
 
   JsonDocument doc;
   doc["content"] = content;
