@@ -35,6 +35,7 @@ const String page = R"del(
 			<span class="pot-name">${pot.name || '名前未定'}</span>
 			<button onclick="renamePot(${pot.ID})">名前変更</button><br>
 			<span class="moisture">湿度: ${pot.moisture || '未取得'}</span>
+			<span class="calibPot">moist :${pot.moist} dry :${pot.dry} threshold: ${pot.threshold} <button onlick="calibPot(${pot.ID})">センサー値の登録</button></span><br>
 			<span class="last-seen">最終取得: ${pot.lastSeen || '不明'}</span><br>
 			<span class="mac">MAC: ${pot.mac}</span>
             <!--鉢を有効にしたり無効にしたり、削除したりするボタンをつくりたい-->
@@ -53,6 +54,11 @@ const String page = R"del(
 		  headers: {"Content-Type": "application/json"},
 		  body: JSON.stringify({id: id, name: newName})
 		}).then(() => loadPots());
+	  }
+
+	  // --- キャリブレーション値登録ボタン ---
+	  function calibPot(id) {
+
 	  }
 
 	  loadPots();
