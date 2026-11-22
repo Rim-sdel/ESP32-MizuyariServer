@@ -8,7 +8,10 @@ enum MsgType : uint8_t {
   MSG_SENSOR_DUMMY,
   MSG_SERVER_RES,
   MSG_ID_REMOVE,
+  MSG_ID_REMOVE_DONE,
 };
+
+inline const uint8_t ID_UNREGISTERED = 255;
 
 #ifdef SERVER_MACHINE
 #define MAX_POTS 10
@@ -30,14 +33,18 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
   msgHeader header;
-  int moisture;
-} sensorMsg;
-
-typedef struct __attribute__((packed)) {
-  msgHeader header;
 } registerMsg;
 
 typedef struct __attribute__((packed)) {
   msgHeader header;
   uint64_t nextRun;
 } serverMsg;
+
+typedef struct __attribute__((packed)) {
+  msgHeader header;
+  int moisture;
+} sensorMsg;
+
+typedef struct __attribute__((packed)) {
+  msgHeader header;
+} sensorRmMsg;

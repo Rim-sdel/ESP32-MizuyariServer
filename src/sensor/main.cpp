@@ -1,4 +1,5 @@
 #include "board_config.h"
+#include "data_struct.h"
 #include "esp_now_sensor_setup.h"
 #include "sensor_handler.h"
 #include <Arduino.h>
@@ -30,7 +31,7 @@ void loop() {
   if ((millis() - lastDebounceTime) > debounceDelay) {
     if (stableState == HIGH && currentButtonState == LOW) {
       Serial.println("ぽちっ");
-      sendData(getSoil());
+      sendData(getSoil(), MSG_SENSOR_DATA);
     }
     stableState = currentButtonState;
   }

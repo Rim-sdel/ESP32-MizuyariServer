@@ -1,5 +1,6 @@
 #include "board_config.h"
 #include "data_struct.h"
+#include "esp_now_sensor_handler.h"
 #include "secrets.h"
 #include "sensor_handler.h"
 #include <Arduino.h>
@@ -8,38 +9,13 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-Preferences pref;
-const char *myID = "myID";
 volatile bool isSending = false;
 volatile bool isChannel = false;
-bool firstConnect = false;
 
 void dummySent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
   isSending = false;
   isChannel = (status == ESP_NOW_SEND_SUCCESS ? true : false);
 }
-
-int getMyId() {
-  pref.begin(myID, true);
-  int savedID = pref.getInt(myID, -1);
-  pref.end();
-  if (savedID == -1) {
-    firstConnect = true;
-    return savedID;
-  }
-  firstConnect = false;
-  return savedID;
-}
-
-bool sendData(const int soil, enum MsgType type) {
-  sensorMsg sendMsg;
-  sendMsg = {};
-  sendMsg.header.type = type;
-  sendMsg.header.ID = getMyId();
-  sendMsg.moisture = soil;
-  return esp_now_send(serverAdrr, (const uint8_t *)&sendMsg, sizeof(sendMsg)) == ESP_OK;
-}
-
 void setChannel() {
   // ダミーを各チャネルに送信して、サーバー機とチャネルを合わせる
   // IDが割り振られていればそれを使って名乗る
@@ -70,27 +46,6 @@ void setChannel() {
   }
   Serial.println("Failed find server channel. Set channel: 0");
   esp_wifi_set_channel(0, NONE);
-}
-
-void onRecvSensor(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
-  if (len == sizeof(int)) {
-    int recvID;
-    memcpy(&recvID, data, sizeof(recvID));
-    pref.begin(myID, false);
-    if (firstConnect) {
-      pref.putInt(myID, recvID);
-      pref.end();
-      Serial.printf("My new ID: %d\n", recvID);
-    } else if (recvID == 9999) {
-      const char *msg = "rmDone.";
-      pref.remove(myID);
-      pref.end();
-      Serial.println("My ID is removed.");
-      esp_now_send(serverAdrr, (uint8_t *)msg, strlen(msg) + 1);
-      return;
-      // server側の削除処理を今度書く！！！
-    }
-  }
 }
 
 bool espOk() {

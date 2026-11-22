@@ -73,3 +73,17 @@ std::pair<std::string, int> getPotData(const int id) {
   }
   return { "null", 0 };
 }
+
+void removePod(const int id) {
+  JsonDocument doc = loadPots();
+  JsonArray arr = doc.as<JsonArray>();
+
+  for (size_t i = 0; i < arr.size(); i++) {
+    if (arr[i]["ID"].as<int>() == id) {
+      arr.remove(i);
+      break;
+    }
+  }
+  savePots(doc);
+  Serial.printf("[POT_HANDLER] Pot%d: Removed.\n", id);
+}

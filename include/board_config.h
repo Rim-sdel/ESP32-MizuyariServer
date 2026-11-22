@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef SENSOR_MACHINE
 // === ボードに合わせて切り替え ===
 #define BOARD_C3
 // #define BOARD_XIAO_C6
@@ -14,4 +15,6 @@
 #ifdef BOARD_XIAO_C6
 #define SENSOR D0
 #define BUTTON D1
+#endif
+
 #endif
