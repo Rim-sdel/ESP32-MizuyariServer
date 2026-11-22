@@ -5,6 +5,10 @@
 #include <cstring>
 #include <esp_now.h>
 #include <set>
+#include <string>
+
+#define uS_TO_S_FACTOR 1000000ULL
+#define TIME_TO_SLEEP 30 // sec
 
 String macToString(const uint8_t *senderMac) {
   char macStr[18];
@@ -46,7 +50,7 @@ bool giveNewID(const uint8_t mac[6], const int newID) {
   return false;
 }
 
-void IDRegister(const uint8_t mac[6]) {
+void IDRegister(const uint8_t mac[6], const int moisture, const std::string time) {
   String macStr = macToString(mac);
   JsonDocument doc = loadPots();
   JsonArray arr = doc.as<JsonArray>();
@@ -71,11 +75,12 @@ void IDRegister(const uint8_t mac[6]) {
   JsonObject newDevice = arr.add<JsonObject>();
   newDevice["ID"] = newID;
   newDevice["name"] = "";
-  newDevice["moisture"] = "";
+  newDevice["moisture"] = moisture;
   newDevice["moist"] = "";
   newDevice["dry"] = "";
   newDevice["threshold"] = "";
-  newDevice["lastSeen"] = "";
+  newDevice["lastSeen"] = time;
+  newDevice["nextRun"] = "";
   newDevice["mac"] = macStr;
   savePots(doc);
 
