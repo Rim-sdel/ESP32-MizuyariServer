@@ -1,5 +1,6 @@
 #include "WString.h"
 #include "data_struct.h"
+#include "esp_now_server_cb_handler.h"
 #include "id_register.h"
 #include "pots_handler.h"
 #include <Arduino.h>
@@ -52,6 +53,11 @@ async function loadPots() {
         ? pot.threshold
         : `<button onclick="choiceThresh(${pot.ID}, event)">未設定</button>`;
 
+	const dbgBtn =
+	  pot.debugMode == 0
+	  ? `<button onclick="startDbgMode(${pot.ID}")>start debug</button>`
+	  : `<button onclick="endDbgMode(${pot.ID})">end debug</button>`;
+
     div.innerHTML = `
 			<span class="id">${pot.ID}</span> 
 			<span class="potName">${pot.name || "名前未定"}</span>
@@ -64,7 +70,8 @@ async function loadPots() {
 			  dry: ${dryBtn}
 			  threshold: ${threshBtn}
 			</span><br>
-			<span class="mac">MAC: ${pot.mac}</span>
+			<span class="mac">MAC: ${pot.mac}</span><br>
+			${dbgBtn}
             <!--鉢を有効にしたり無効にしたり、削除したりするボタンをつくりたい-->
 		  `;
     container.appendChild(div);
@@ -160,7 +167,8 @@ function choiceThresh(id, event) {
 }
 
 async function setThresh(id, btnEl) {
-  const threshold = btnEl.parentElement.querySelector("input[type=range]").value;
+  const threshold =
+    btnEl.parentElement.querySelector("input[type=range]").value;
 
   await fetch("/calibrate", {
     method: "POST",
@@ -181,6 +189,32 @@ async function removePot(id) {
   loadPots();
 }
 
+async function startDbgMode(id) {
+  const choice = confirm("デバッグモードに入りますか？");
+  if (!choice) {
+	return;
+  } else {
+  
+	  await fetch("/debug", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: id, debug: "1" }),
+  });
+  loadPots();  } 
+}
+async function endDbgMode(id) {
+  const choice = confirm("デバッグモードを終了しますか？");
+  if (!choice) {
+	return;
+  } else {
+  
+	  await fetch("/debug", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: id, debug: "0" }),
+  });
+  loadPots();  } 
+}
 loadPots();
 setInterval(loadPots, 30000);
     </script>
@@ -221,11 +255,24 @@ void handleCalib() {
   server.send(200, "text/plain", "OK");
 }
 
+void handleRemove() {
+  JsonDocument doc;
+  deserializeJson(doc, server.arg("plain"));
+  int id = doc["id"];
+  sendRemoveID(id);
+
+  server.send(200, "text/plain", "OK");
+}
+
+void handleDbg() {}
+
 void serverSetup() {
   server.on("/", handleRoot);
   server.on("/pots", getPotsData);
   server.on("/rename", HTTP_POST, handleRename);
   server.on("/calibrate", HTTP_POST, handleCalib);
+  server.on("/remove", HTTP_POST, handleRemove);
+  server.on("/debug", HTTP_POST, handleDbg);
   server.begin();
   Serial.println("Web server start!!");
 }

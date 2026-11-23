@@ -4,6 +4,7 @@
 #include "pots_handler.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
@@ -42,6 +43,27 @@ bool isDry(const int id) {
     return true;
   }
   return false;
+}
+
+void sendRemoveID(const int id) {
+  sensorRmMsg msg;
+  msg.header.type = MSG_ID_REMOVE;
+  msg.header.ID = id;
+  char *hex;
+  uint8_t mac[6];
+
+  auto [doc, arr] = loadPotsAndArr();
+
+  for (JsonObject obj : arr) {
+    if (obj["ID"].as<int>() == id) {
+      hex = obj["mac"].as<char *>();
+      break;
+    }
+  }
+  hexToMac(hex, mac);
+
+  Serial.printf("[ID_REMOVER] pot%d: Removing...,", id);
+  Serial.println(esp_now_send(mac, (const uint8_t *)&msg, sizeof(msg)) == ESP_OK ? "SUCCESS" : "FAIL");
 }
 
 void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len) {

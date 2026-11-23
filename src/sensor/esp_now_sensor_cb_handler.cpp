@@ -45,11 +45,12 @@ void setMyNewID(const int ID) {
 }
 
 void removeMyID() {
+  int myOldID = getMyId();
   pref.begin(myID, false);
   pref.remove(myID);
   pref.end();
   Serial.printf("[ID_REGISTER] My ID is removed.");
-  Serial.println(sendData(-1, MSG_ID_REMOVE_DONE) ? "[ID_REGISTER] Removed report has been sent to the server." : "[ID_REGISTER] Failed send removed report to the server.");
+  Serial.println(sendData(myOldID, MSG_ID_REMOVE_DONE) ? "[ID_REGISTER] Removed report has been sent to the server." : "[ID_REGISTER] Failed send removed report to the server.");
 }
 
 void onRecvSensor(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
