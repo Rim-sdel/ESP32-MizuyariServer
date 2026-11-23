@@ -24,6 +24,7 @@ void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
 }
 
 bool isDry(const int id) {
+  // 計算と保存を別の関数に切り出す作業をする！！！！
   if (id == -1)
     return false;
   JsonDocument doc = loadPots();
@@ -38,9 +39,16 @@ bool isDry(const int id) {
       threshold = obj["threshold"];
       if (obj["moist"].isNull() || obj["dry"].isNull() || obj["threshold"].isNull())
         return false;
-      if ((dry - raw) * 100 / (dry - moist) < threshold)
-        return true;
-      return false;
+      int moisture = (dry - raw) * 100 / (dry - moist);
+
+      if (moisture > 100)
+        moisture = 100;
+      else if (moisture < 0)
+        moisture = 0;
+
+      obj["moisture"] = moisture;
+      savePots(doc);
+      return (moisture < threshold);
     }
   }
   return false;

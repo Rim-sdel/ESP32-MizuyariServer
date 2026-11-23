@@ -93,6 +93,7 @@ int IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time
   newDevice["ID"] = newID;
   // newDevice["name"] = "";
   newDevice["sensorRaw"] = sensorRaw;
+  // newDevice["moisture"];
   // newDevice["moist"] = "";
   // newDevice["dry"] = "";
   // newDevice["threshold"] = "";

@@ -51,17 +51,30 @@ async function loadPots() {
 	  ? `<button onclick="startDbgMode(${pot.ID})">start debug</button>`
 	  : `<button onclick="endDbgMode(${pot.ID})">end debug</button>`;
 
+	const editMoistBtn = 
+	  pot.moist != null
+	  ? `<button onclick="setMoist(${pot.ID}, event)">変更</button>`
+	  : "";
+	const editDryBtn = 
+	  pot.dry != null 
+	  ? `<button onclick="setDry(${pot.ID}, event)">変更</button>`
+	  : "";
+	const editThreshBtn =
+	  pot.threshold != null 
+	  ? `<button onclick="choiceThresh(${pot.ID}, event)">変更</button>`
+	  : "";
+
     div.innerHTML = `
 			<span class="id">${pot.ID}</span> 
 			<span class="potName">${pot.name || "名前未定"}</span>
 			<button onclick="renamePot(${pot.ID})">名前変更</button><button onclick="removePot(${pot.ID})">削除</button><br>
-		    <span class="moisture">湿度： ---</span>
+			<span class="moisture">湿度： ${pot.moisture || "---"}％</span>
 			<span class="raw">センサー値: ${pot.sensorRaw || "---"}</span><br>
 			<span class="lastSeen">最終取得: ${pot.lastSeen || "不明"}</span><br>
 			<span class="calibPot">
-			  moist: ${moistBtn}
-			  dry: ${dryBtn}
-			  threshold: ${threshBtn}
+			  moist: ${moistBtn} ${editMoistBtn}
+			  dry: ${dryBtn} ${editDryBtn}
+			  threshold: ${threshBtn} ${editThreshBtn}
 			</span><br>
 			<span class="mac">MAC: ${pot.mac}</span><br>
 			${dbgBtn}
