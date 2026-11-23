@@ -49,14 +49,14 @@ void sendRemoveID(const int id) {
   sensorRmMsg msg;
   msg.header.type = MSG_ID_REMOVE;
   msg.header.ID = id;
-  char *hex;
+  const char *hex;
   uint8_t mac[6];
 
   auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
-      hex = obj["mac"].as<char *>();
+      hex = obj["mac"].as<const char *>();
       break;
     }
   }
