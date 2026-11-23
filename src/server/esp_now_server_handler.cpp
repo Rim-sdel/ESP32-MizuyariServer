@@ -38,12 +38,10 @@ bool isDry(const int id) {
       threshold = obj["threshold"];
       if (obj["moist"].isNull() || obj["dry"].isNull() || obj["threshold"].isNull())
         return false;
-      break;
+      if ((dry - raw) * 100 / (dry - moist) < threshold)
+        return true;
+      return false;
     }
-  }
-
-  if ((dry - raw) * 100 / (dry - moist) < threshold) {
-    return true;
   }
   return false;
 }
