@@ -22,7 +22,7 @@ typedef struct potData {
   char name[32];
   bool active;
   std::string lastSeen;
-  int moisture;
+  int sensorRaw;
 } potData;
 #endif
 
@@ -42,7 +42,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
   msgHeader header;
-  int moisture;
+  int sensorRaw;
 } sensorMsg;
 
 typedef struct __attribute__((packed)) {

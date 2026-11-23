@@ -7,5 +7,6 @@
 
 data/
 test/
+html_dev/
 secrets.h
 compile_commands.json

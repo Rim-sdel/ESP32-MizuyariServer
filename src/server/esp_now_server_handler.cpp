@@ -42,10 +42,10 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
     const uint8_t *senderMac = info->src_addr;
 
     if (int(msg.header.ID) == ID_UNREGISTERED) {
-      IDRegister(senderMac, msg.moisture, nowTimeStr);
+      IDRegister(senderMac, msg.sensorRaw, nowTimeStr);
     } else {
-      updatePots(msg.header.ID, msg.moisture, nowTimeStr);
-      Serial.printf("[RECV_INFO] %s - [%d] moisture: %d\n", nowTimeStr.c_str(), msg.header.ID, msg.moisture);
+      updatePots(msg.header.ID, msg.sensorRaw, nowTimeStr);
+      Serial.printf("[RECV_INFO] %s - [%d] sensorRaw: %d\n", nowTimeStr.c_str(), msg.header.ID, msg.sensorRaw);
     }
 
     sendNextWake(msg.header.ID, senderMac);
@@ -53,7 +53,7 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
   }
   }
 
-  // if (recvData.moisture > thresholdSoil) {
+  // if (recvData.sensorRaw > thresholdSoil) {
   //   shouldNotify = true;
   //   notifyID = recvData.ID;
   // }

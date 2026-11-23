@@ -33,7 +33,7 @@ bool sendData(const int soil, enum MsgType type) {
   sendMsg = {};
   sendMsg.header.type = type;
   sendMsg.header.ID = getMyId();
-  sendMsg.moisture = soil;
+  sendMsg.sensorRaw = soil;
   return esp_now_send(serverAdrr, (const uint8_t *)&sendMsg, sizeof(sendMsg)) == ESP_OK;
 }
 

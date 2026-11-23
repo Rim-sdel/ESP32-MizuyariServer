@@ -31,13 +31,13 @@ void savePots(JsonDocument &doc) {
   }
 }
 
-void updatePots(const int id, const int moisture, std::string lastSeen) {
+void updatePots(const int id, const int sensorRaw, std::string lastSeen) {
   JsonDocument doc = loadPots();
   JsonArray arr = doc.as<JsonArray>();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
-      obj["moisture"] = moisture;
+      obj["sensorRaw"] = sensorRaw;
       obj["lastSeen"] = lastSeen;
       break;
     }
@@ -60,6 +60,20 @@ void updatePotName(const int id, const String newName) {
   Serial.printf("[POT_HANDLER] Pot%d: Name changed.\n", id);
 }
 
+void updatePotCalib(const int id, const char *key, const int val) {
+  JsonDocument doc = loadPots();
+  JsonArray arr = doc.as<JsonArray>();
+
+  for (JsonObject obj : arr) {
+    if (obj["ID"].as<int>() == id) {
+      obj[key] = val;
+      break;
+    }
+  }
+  savePots(doc);
+  Serial.printf("[POT_HANDER] Pot%d: %s changed.\n", id, key);
+}
+
 std::pair<std::string, int> getPotData(const int id) {
   JsonDocument doc = loadPots();
   JsonArray arr = doc.as<JsonArray>();
@@ -67,8 +81,8 @@ std::pair<std::string, int> getPotData(const int id) {
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
       std::string name = obj["name"].as<std::string>();
-      int moisture = obj["moisture"].as<int>();
-      return { name, moisture };
+      int sensorRaw = obj["sensorRaw"].as<int>();
+      return { name, sensorRaw };
     }
   }
   return { "null", 0 };

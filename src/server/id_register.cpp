@@ -1,6 +1,7 @@
 #include "pots_handler.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <esp_now.h>
@@ -10,17 +11,27 @@
 #define uS_TO_S_FACTOR 1000000ULL
 #define TIME_TO_SLEEP 30 // sec
 
-String macToString(const uint8_t *senderMac) {
+String macToString(const uint8_t *mac) {
   char macStr[18];
-  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X", senderMac[0], senderMac[1], senderMac[2], senderMac[3], senderMac[4], senderMac[5]);
+  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   Serial.print("Sender: ");
   Serial.println(macStr);
   return String(macStr);
 }
 
-bool addPeerSensor(const uint8_t addr[6]) {
+void macToHex(const uint8_t mac[6], char *hex) {
+  for (int i = 0; i < 6; i++)
+    sprintf(hex + i * 2, "%02X", mac[i]);
+}
+
+void hexToMac(const char *hex, uint8_t mac[6]) {
+  for (int i = 0; i < 6; i++)
+    sscanf(hex + i * 2, "%2hhx", &mac[i]);
+}
+
+bool addPeerSensor(const uint8_t mac[6]) {
   esp_now_peer_info_t sensor = {};
-  memcpy(sensor.peer_addr, addr, 6);
+  memcpy(sensor.peer_addr, mac, 6);
   sensor.encrypt = false;
   if (esp_now_add_peer(&sensor) != ESP_OK) {
     Serial.println("Add peer failed. Stop registering.");
@@ -50,13 +61,15 @@ bool giveNewID(const uint8_t mac[6], const int newID) {
   return false;
 }
 
-void IDRegister(const uint8_t mac[6], const int moisture, const std::string time) {
-  String macStr = macToString(mac);
+void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time) {
+  char macHex[13];
+  macToHex(mac, macHex);
+
   JsonDocument doc = loadPots();
   JsonArray arr = doc.as<JsonArray>();
 
   for (JsonObject obj : arr) {
-    if (obj["mac"].as<String>() == macStr) {
+    if (obj["mac"].as<const char *>() == macHex) {
       Serial.println("[ID_REGISTER] Already registered, Skipping.");
       return;
     }
@@ -75,15 +88,16 @@ void IDRegister(const uint8_t mac[6], const int moisture, const std::string time
   JsonObject newDevice = arr.add<JsonObject>();
   newDevice["ID"] = newID;
   newDevice["name"] = "";
-  newDevice["moisture"] = moisture;
+  newDevice["sensorRaw"] = sensorRaw;
   newDevice["moist"] = "";
   newDevice["dry"] = "";
   newDevice["threshold"] = "";
   newDevice["lastSeen"] = time;
   newDevice["nextRun"] = "";
-  newDevice["mac"] = macStr;
+  newDevice["mac"] = macHex;
   savePots(doc);
 
+  String macStr = macToString(mac);
   Serial.print("[ID_REGISTER] New device registered: ");
   Serial.printf("ID - %d, MAC - %s\n", newID, macStr.c_str());
 }
