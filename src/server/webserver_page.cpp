@@ -23,7 +23,7 @@ const String page = R"del(
     <script>
 // --- pots.jsonからリストを取得して表示 ---
 async function loadPots() {
-  const res = await fetch("/pots");g
+  const res = await fetch("/pots");
   const pots = await res.json();
   const container = document.getElementById("potsList");
 
@@ -56,7 +56,7 @@ async function loadPots() {
 			<span class="potName">${pot.name || "名前未定"}</span>
 			<button onclick="renamePot(${pot.ID})">名前変更</button><button onclick="removePot(${pot.ID})">削除</button><br>
 		    <span class="moisture">湿度： ---</span>
-			<span class="raw">センサー値: ${pot.raw || "---"}</span><br>
+			<span class="raw">センサー値: ${pot.sensorRaw || "---"}</span><br>
 			<span class="lastSeen">最終取得: ${pot.lastSeen || "不明"}</span><br>
 			<span class="calibPot">
 			  moist: ${moistBtn}

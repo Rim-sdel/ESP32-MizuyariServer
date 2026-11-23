@@ -6,9 +6,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-#define uS_TO_S 1000000ULL
-#define SLEEP_TIME 30
-
 bool lastButtonState = HIGH;
 bool stableState = HIGH;
 unsigned long lastDebounceTime = 0;
@@ -37,7 +34,6 @@ void setup() {
 
   espNowSetup();
   if (!sendData(getSoil(), MSG_SENSOR_DATA)) {
-    sleepTime = SLEEP_TIME * uS_TO_S;
     deepSleep();
   };
 }

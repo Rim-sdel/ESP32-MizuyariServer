@@ -11,7 +11,7 @@ Preferences pref;
 const char *myID = "myID";
 
 volatile bool shouldSleep = false;
-uint64_t sleepTime;
+RTC_DATA_ATTR uint64_t sleepTime;
 
 int getMyId() {
   pref.begin(myID, true);

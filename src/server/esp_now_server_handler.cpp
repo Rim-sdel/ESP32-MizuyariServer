@@ -24,6 +24,8 @@ void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
 }
 
 bool isDry(const int id) {
+  if (id == -1)
+    return false;
   JsonDocument doc = loadPots();
   JsonArray arr = doc.as<JsonArray>();
   int raw, moist, dry, threshold;

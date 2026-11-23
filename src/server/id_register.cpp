@@ -1,3 +1,4 @@
+#include "data_struct.h"
 #include "pots_handler.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -53,7 +54,10 @@ int getNewID(JsonArray &arr) {
 }
 
 bool giveNewID(const uint8_t mac[6], const int newID) {
-  if (esp_now_send(mac, (uint8_t *)&newID, sizeof(newID)) == ESP_OK) {
+  registerMsg msg;
+  msg.header.type = MSG_ID_REGISTER;
+  msg.header.ID = newID;
+  if (esp_now_send(mac, (uint8_t *)&msg, sizeof(msg)) == ESP_OK) {
     Serial.println("[ID_REGISTER] Succeed give new ID.");
     return true;
   }
