@@ -23,8 +23,7 @@ void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
   Serial.println(esp_now_send(senderMac, (const uint8_t *)&msg, sizeof(msg)) == ESP_OK ? "SUCCESS" : "FAIL");
 }
 
-bool isDry(const int id) {
-  // 計算と保存を別の関数に切り出す作業をする！！！！
+bool isDryAndUpdateMoisture(const int id) {
   if (id == -1)
     return false;
   JsonDocument doc = loadPots();
@@ -112,7 +111,7 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
   }
   }
 
-  if (isDry(id)) {
+  if (isDryAndUpdateMoisture(id)) {
     shouldNotify = true;
     notifyID = id;
   }
