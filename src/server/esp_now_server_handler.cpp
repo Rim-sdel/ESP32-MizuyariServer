@@ -18,7 +18,7 @@ void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
   serverMsg msg;
   msg.header.type = MSG_SERVER_RES;
   msg.header.ID = id;
-  msg.sleepTime = getSleepTime();
+  msg.sleepTime = getSleepTime(id);
   Serial.print("[SERVER] Send next wake time: ");
   Serial.println(esp_now_send(senderMac, (const uint8_t *)&msg, sizeof(msg)) == ESP_OK ? "SUCCESS" : "FAIL");
 }
@@ -39,7 +39,7 @@ bool isDry(const int id) {
     }
   }
 
-  if ((dry - raw) / (dry - moist) * 100 < threshold) {
+  if ((dry - raw) * 100 / (dry - moist) < threshold) {
     return true;
   }
   return false;

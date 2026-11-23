@@ -55,7 +55,7 @@ async function loadPots() {
 
 	const dbgBtn =
 	  pot.debugMode == 0
-	  ? `<button onclick="startDbgMode(${pot.ID}")>start debug</button>`
+	  ? `<button onclick="startDbgMode(${pot.ID})">start debug</button>`
 	  : `<button onclick="endDbgMode(${pot.ID})">end debug</button>`;
 
     div.innerHTML = `
@@ -198,7 +198,7 @@ async function startDbgMode(id) {
 	  await fetch("/debug", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id, debug: "1" }),
+    body: JSON.stringify({ id: id, debugMode: 1 }),
   });
   loadPots();  } 
 }
@@ -211,7 +211,7 @@ async function endDbgMode(id) {
 	  await fetch("/debug", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id, debug: "0" }),
+    body: JSON.stringify({ id: id, debugMode: 0 }),
   });
   loadPots();  } 
 }
@@ -264,7 +264,15 @@ void handleRemove() {
   server.send(200, "text/plain", "OK");
 }
 
-void handleDbg() {}
+void handleDbg() {
+  JsonDocument doc;
+  deserializeJson(doc, server.arg("plain"));
+  int id = doc["id"];
+  int dbgMode = doc["debugMode"];
+  toggleDbg(id, dbgMode);
+
+  server.send(200, "text/plain", "OK");
+}
 
 void serverSetup() {
   server.on("/", handleRoot);

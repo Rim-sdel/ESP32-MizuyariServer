@@ -1,3 +1,4 @@
+#include "pots_handler.h"
 #include <Arduino.h>
 #include <cstdint>
 #include <ctime>
@@ -11,12 +12,6 @@ const int daylightOffset_sec = 0;
 
 #define uS_TO_S 1000000ULL
 #define SLEEP_TIME 30
-
-uint64_t getSleepTime() {
-  // これは仮のやつ
-  uint64_t time = SLEEP_TIME * uS_TO_S;
-  return time;
-}
 
 // uint64_t initSleepTime() {
 // ブラウザでセンサー取得時刻を設定したあとの初回DeepSleep用
@@ -50,6 +45,31 @@ std::string getTimeString(time_t time) {
   char timeString[50];
   strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", timeinfo);
   return timeString;
+}
+
+uint64_t getSleepTime(const int id) {
+  if (isDbgMode(id)) {
+    // 短時間Sleep
+    return SLEEP_TIME * uS_TO_S;
+  }
+
+  // 長時間Sleep
+  // 毎日12時00分id秒と24時00分id秒に起床
+  time_t now = getTime();
+  struct tm *tm = localtime(&now);
+  int secNow = tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec;
+
+  int target12 = 12 * 3600 + id; // 12:00:00 + id
+  int target24 = 24 * 3600 + id;
+
+  int sleepSec;
+  if (secNow < target12) {
+    sleepSec = target12 - secNow;
+  } else {
+    sleepSec = target24 - secNow;
+  }
+
+  return (uint64_t)sleepSec * uS_TO_S;
 }
 
 void timeSetup() {

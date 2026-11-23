@@ -94,6 +94,7 @@ void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string tim
   newDevice["lastSeen"] = time;
   // newDevice["nextRun"] = "";
   newDevice["mac"] = macHex;
+  newDevice["debugMode"] = 1;
   savePots(doc);
 
   String macStr = macToString(mac);

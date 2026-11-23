@@ -74,7 +74,7 @@ void updatePotCalib(const int id, const char *key, const int val) {
     }
   }
   savePots(doc);
-  Serial.printf("[POT_HANDER] Pot%d: %s changed.\n", id, key);
+  Serial.printf("[POT_HANDLER] Pot%d: %s changed.\n", id, key);
 }
 
 std::pair<std::string, int> getPotData(const int id) {
@@ -88,6 +88,30 @@ std::pair<std::string, int> getPotData(const int id) {
     }
   }
   return { "null", 0 };
+}
+
+void toggleDbg(const int id, const int dbgMode) {
+  auto [doc, arr] = loadPotsAndArr();
+
+  for (JsonObject obj : arr) {
+    if (obj["ID"].as<int>() == id) {
+      obj["debugMode"] = dbgMode;
+      break;
+    }
+  }
+  savePots(doc);
+  Serial.printf("[POT_HANDLER] Pot%d: debugMode %s", id, dbgMode == 1 ? "ON" : "OFF");
+}
+
+bool isDbgMode(const int id) {
+  auto [doc, arr] = loadPotsAndArr();
+
+  for (JsonObject obj : arr) {
+    if (obj["ID"].as<int>() == id) {
+      return (obj["debugMode"] == 1);
+    }
+  }
+  return 1;
 }
 
 void removePod(const int id) {
