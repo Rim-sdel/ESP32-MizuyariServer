@@ -61,16 +61,16 @@ bool giveNewID(const uint8_t mac[6], const int newID) {
   return false;
 }
 
-void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time) {
+int IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time) {
   char macHex[13];
   macToHex(mac, macHex);
 
   auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
-    if (obj["mac"].as<const char *>() == macHex) {
+    if (strcmp(obj["mac"].as<const char *>(), macHex) == 0) {
       Serial.println("[ID_REGISTER] Already registered, Skipping.");
-      return;
+      return obj["ID"].as<int>();
     }
   }
 
@@ -78,11 +78,11 @@ void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string tim
 
   if (!esp_now_is_peer_exist(mac)) {
     if (!addPeerSensor(mac))
-      return;
+      return -1;
   }
 
   if (!giveNewID(mac, newID))
-    return;
+    return -1;
 
   JsonObject newDevice = arr.add<JsonObject>();
   newDevice["ID"] = newID;
@@ -100,4 +100,5 @@ void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string tim
   String macStr = macToString(mac);
   Serial.print("[ID_REGISTER] New device registered: ");
   Serial.printf("ID - %d, MAC - %s\n", newID, macStr.c_str());
+  return newID;
 }

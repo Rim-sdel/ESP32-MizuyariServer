@@ -69,6 +69,7 @@ void sendRemoveID(const int id) {
 void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
   msgHeader header;
   memcpy(&header, data, sizeof(msgHeader));
+  int id = header.ID;
 
   switch (header.type) {
   case MSG_SENSOR_DUMMY:
@@ -86,20 +87,24 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
     const uint8_t *senderMac = info->src_addr;
 
     if (int(msg.header.ID) == ID_UNREGISTERED) {
-      IDRegister(senderMac, msg.sensorRaw, nowTimeStr);
+      id = IDRegister(senderMac, msg.sensorRaw, nowTimeStr);
+      if (id == -1) {
+        Serial.println("[ID_REGISTER] Failed regist new device.");
+        return;
+      }
     } else {
       updatePots(msg.header.ID, msg.sensorRaw, nowTimeStr);
       Serial.printf("[RECV_INFO] %s - [%d] sensorRaw: %d\n", nowTimeStr.c_str(), msg.header.ID, msg.sensorRaw);
     }
 
-    sendNextWake(msg.header.ID, senderMac);
+    sendNextWake(id, senderMac);
     break;
   }
   }
 
-  if (isDry(header.ID)) {
+  if (isDry(id)) {
     shouldNotify = true;
-    notifyID = header.ID;
+    notifyID = id;
   }
 
   Serial.println("--------------------");
