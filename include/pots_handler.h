@@ -2,6 +2,7 @@
 #include <ArduinoJson.h>
 
 JsonDocument loadPots();
+std::pair<JsonDocument, JsonArray> loadPotsAndArr();
 String loadPotsStr();
 void savePots(JsonDocument &doc);
 void updatePots(const int id, const int sensorRaw, std::string lastSeen);

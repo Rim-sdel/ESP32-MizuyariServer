@@ -22,6 +22,28 @@ void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
   Serial.println(esp_now_send(senderMac, (const uint8_t *)&msg, sizeof(msg)) == ESP_OK ? "SUCCESS" : "FAIL");
 }
 
+bool isDry(const int id) {
+  auto [doc, arr] = loadPotsAndArr();
+  int raw, moist, dry, threshold;
+
+  for (JsonObject obj : arr) {
+    if (obj["ID"].as<int>() == id) {
+      raw = obj["sensorRaw"];
+      moist = obj["moist"];
+      dry = obj["dry"];
+      threshold = obj["threshold"];
+      if (obj["moist"].isNull() || obj["dry"].isNull() || obj["threshold"].isNull())
+        return false;
+      break;
+    }
+  }
+
+  if ((dry - raw) / (dry - moist) * 100 < threshold) {
+    return true;
+  }
+  return false;
+}
+
 void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
   msgHeader header;
   memcpy(&header, data, sizeof(msgHeader));
@@ -53,10 +75,11 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
   }
   }
 
-  // if (recvData.sensorRaw > thresholdSoil) {
-  //   shouldNotify = true;
-  //   notifyID = recvData.ID;
-  // }
+  if (isDry(header.ID)) {
+    shouldNotify = true;
+    notifyID = header.ID;
+  }
+
   Serial.println("--------------------");
 }
 

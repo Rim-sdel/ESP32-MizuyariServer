@@ -40,15 +40,15 @@ async function loadPots() {
     div.className = "pot";
 
     const moistBtn =
-      pot.moist != ""
+      pot.moist != null
         ? pot.moist
         : `<button onclick="setMoist(${pot.ID}, event)">未設定</button>`;
     const dryBtn =
-      pot.dry != ""
+      pot.dry != null
         ? pot.dry
         : `<button onclick="setDry(${pot.ID}, event)">未設定</button>`;
     const threshBtn =
-      pot.threshold != ""
+      pot.threshold != null
         ? pot.threshold
         : `<button onclick="choiceThresh(${pot.ID}, event)">未設定</button>`;
 

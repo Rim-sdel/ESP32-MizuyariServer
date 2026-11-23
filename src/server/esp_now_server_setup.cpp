@@ -7,8 +7,7 @@
 #include <pots_handler.h>
 
 void peerSetup() {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     const char *hex = obj["mac"].as<const char *>();

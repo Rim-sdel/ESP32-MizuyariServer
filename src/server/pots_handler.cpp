@@ -17,6 +17,12 @@ JsonDocument loadPots() {
   return doc;
 }
 
+std::pair<JsonDocument, JsonArray> loadPotsAndArr() {
+  JsonDocument doc = loadPots();
+  JsonArray arr = doc.as<JsonArray>();
+  return { doc, arr };
+}
+
 String loadPotsStr() {
   String jstr;
   serializeJson(loadPots(), jstr);
@@ -32,8 +38,7 @@ void savePots(JsonDocument &doc) {
 }
 
 void updatePots(const int id, const int sensorRaw, std::string lastSeen) {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
@@ -47,8 +52,7 @@ void updatePots(const int id, const int sensorRaw, std::string lastSeen) {
 }
 
 void updatePotName(const int id, const String newName) {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
@@ -61,8 +65,7 @@ void updatePotName(const int id, const String newName) {
 }
 
 void updatePotCalib(const int id, const char *key, const int val) {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
@@ -75,8 +78,7 @@ void updatePotCalib(const int id, const char *key, const int val) {
 }
 
 std::pair<std::string, int> getPotData(const int id) {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
@@ -89,8 +91,7 @@ std::pair<std::string, int> getPotData(const int id) {
 }
 
 void removePod(const int id) {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (size_t i = 0; i < arr.size(); i++) {
     if (arr[i]["ID"].as<int>() == id) {

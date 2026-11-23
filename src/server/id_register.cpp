@@ -65,8 +65,7 @@ void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string tim
   char macHex[13];
   macToHex(mac, macHex);
 
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
+  auto [doc, arr] = loadPotsAndArr();
 
   for (JsonObject obj : arr) {
     if (obj["mac"].as<const char *>() == macHex) {
@@ -87,13 +86,13 @@ void IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string tim
 
   JsonObject newDevice = arr.add<JsonObject>();
   newDevice["ID"] = newID;
-  newDevice["name"] = "";
+  // newDevice["name"] = "";
   newDevice["sensorRaw"] = sensorRaw;
-  newDevice["moist"] = "";
-  newDevice["dry"] = "";
-  newDevice["threshold"] = "";
+  // newDevice["moist"] = "";
+  // newDevice["dry"] = "";
+  // newDevice["threshold"] = "";
   newDevice["lastSeen"] = time;
-  newDevice["nextRun"] = "";
+  // newDevice["nextRun"] = "";
   newDevice["mac"] = macHex;
   savePots(doc);
 
