@@ -6,23 +6,13 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
+#define uS_TO_S 1000000ULL
+#define SLEEP_TIME 30
+
 bool lastButtonState = HIGH;
 bool stableState = HIGH;
 unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 50;
-
-void setup() {
-  pinMode(SENSOR_POWER, OUTPUT);
-  digitalWrite(SENSOR_POWER, LOW);
-  pinMode(SENSOR, INPUT);
-  pinMode(BUTTON, INPUT_PULLUP);
-
-  Serial.begin(115200);
-  delay(1000);
-
-  espNowSetup();
-  sendData(getSoil(), MSG_SENSOR_DATA);
-}
 
 void deepSleep() {
   // Serial.printf("sleepTime: %llu us\n", sleepTime);
@@ -34,6 +24,22 @@ void deepSleep() {
 
   esp_sleep_enable_timer_wakeup(sleepTime);
   esp_deep_sleep_start();
+}
+
+void setup() {
+  pinMode(SENSOR_POWER, OUTPUT);
+  digitalWrite(SENSOR_POWER, LOW);
+  pinMode(SENSOR, INPUT);
+  pinMode(BUTTON, INPUT_PULLUP);
+
+  Serial.begin(115200);
+  delay(1000);
+
+  espNowSetup();
+  if (!sendData(getSoil(), MSG_SENSOR_DATA)) {
+    sleepTime = SLEEP_TIME * uS_TO_S;
+    deepSleep();
+  };
 }
 
 void loop() {

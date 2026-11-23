@@ -65,7 +65,8 @@ int IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time
   char macHex[13];
   macToHex(mac, macHex);
 
-  auto [doc, arr] = loadPotsAndArr();
+  JsonDocument doc = loadPots();
+  JsonArray arr = doc.as<JsonArray>();
 
   for (JsonObject obj : arr) {
     if (strcmp(obj["mac"].as<const char *>(), macHex) == 0) {

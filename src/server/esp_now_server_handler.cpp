@@ -24,7 +24,8 @@ void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
 }
 
 bool isDry(const int id) {
-  auto [doc, arr] = loadPotsAndArr();
+  JsonDocument doc = loadPots();
+  JsonArray arr = doc.as<JsonArray>();
   int raw, moist, dry, threshold;
 
   for (JsonObject obj : arr) {
@@ -52,7 +53,8 @@ void sendRemoveID(const int id) {
   const char *hex;
   uint8_t mac[6];
 
-  auto [doc, arr] = loadPotsAndArr();
+  JsonDocument doc = loadPots();
+  JsonArray arr = doc.as<JsonArray>();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {

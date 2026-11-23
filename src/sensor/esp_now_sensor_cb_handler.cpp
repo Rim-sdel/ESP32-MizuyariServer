@@ -21,14 +21,6 @@ int getMyId() {
 }
 
 bool sendData(const int soil, enum MsgType type) {
-  if (type == MSG_ID_REMOVE_DONE) {
-    sensorRmMsg sendMsg;
-    sendMsg = {};
-    sendMsg.header.type = type;
-    sendMsg.header.ID = -1;
-    return esp_now_send(serverAdrr, (const uint8_t *)&sendMsg, sizeof(sendMsg)) == ESP_OK;
-  }
-
   sensorMsg sendMsg;
   sendMsg = {};
   sendMsg.header.type = type;

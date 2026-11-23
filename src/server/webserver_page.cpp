@@ -23,14 +23,7 @@ const String page = R"del(
     <script>
 // --- pots.jsonからリストを取得して表示 ---
 async function loadPots() {
-  // --- dev ---
-  const IS_DEV =
-    location.port !== "80" &&
-    location.hostname !== location.hostname.match(/^\d/)?.[0];
-  const BASE = IS_DEV ? "." : "";
-  // -----------
-  // const res = await fetch("/pots");g
-  const res = await fetch(BASE + (IS_DEV ? "/mock-pots.json" : "/pots"));
+  const res = await fetch("/pots");g
   const pots = await res.json();
   const container = document.getElementById("potsList");
 
