@@ -5,13 +5,20 @@
 #include "sensor_handler.h"
 #include <Arduino.h>
 #include <WiFi.h>
+#include <cstdint>
 
-bool lastButtonState = HIGH;
-bool stableState = HIGH;
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 50;
+#define uS_TO_S 1000000ULL
+#define SLEEP_TIME 30
 
-void deepSleep() {
+// bool lastButtonState = HIGH;
+// bool stableState = HIGH;
+// unsigned long lastDebounceTime = 0;
+// unsigned long debounceDelay = 50;
+
+unsigned long timeOut = 300;
+unsigned long sendTime;
+
+void deepSleep(uint64_t sleepTime) {
   // Serial.printf("sleepTime: %llu us\n", sleepTime);
   Serial.println("Data reveived. Going to deep sleep...");
   Serial.flush();
@@ -33,29 +40,32 @@ void setup() {
   delay(1000);
 
   espNowSetup();
-  if (!sendData(getSoil(), MSG_SENSOR_DATA)) {
-    deepSleep();
-  };
+  sendData(getSoil(), MSG_SENSOR_DATA);
+  sendTime = millis();
 }
 
 void loop() {
   if (shouldSleep) {
     shouldSleep = false;
-    deepSleep();
+    deepSleep(sleepTime);
   }
 
-  bool currentButtonState = digitalRead(BUTTON);
-
-  if (currentButtonState != lastButtonState) {
-    lastDebounceTime = millis();
+  if (millis() - sendTime >= timeOut) {
+    deepSleep(SLEEP_TIME * uS_TO_S);
   }
 
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (stableState == HIGH && currentButtonState == LOW) {
-      Serial.println("ぽちっ");
-      sendData(getSoil(), MSG_SENSOR_DATA);
-    }
-    stableState = currentButtonState;
-  }
-  lastButtonState = currentButtonState;
+  // bool currentButtonState = digitalRead(BUTTON);
+  //
+  // if (currentButtonState != lastButtonState) {
+  //   lastDebounceTime = millis();
+  // }
+  //
+  // if ((millis() - lastDebounceTime) > debounceDelay) {
+  //   if (stableState == HIGH && currentButtonState == LOW) {
+  //     Serial.println("ぽちっ");
+  //     sendData(getSoil(), MSG_SENSOR_DATA);
+  //   }
+  //   stableState = currentButtonState;
+  // }
+  // lastButtonState = currentButtonState;
 }
