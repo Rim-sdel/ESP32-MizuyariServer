@@ -65,7 +65,7 @@ bool giveNewID(const uint8_t mac[6], const int newID) {
   return false;
 }
 
-int IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time) {
+int IDRegister(const uint8_t mac[6], const int sensorRaw, const float battLev, const std::string time) {
   char macHex[13];
   macToHex(mac, macHex);
 
@@ -97,6 +97,7 @@ int IDRegister(const uint8_t mac[6], const int sensorRaw, const std::string time
   // newDevice["moist"] = "";
   // newDevice["dry"] = "";
   // newDevice["threshold"] = "";
+  newDevice["battLev"] = battLev;
   newDevice["lastSeen"] = time;
   // newDevice["nextRun"] = "";
   newDevice["mac"] = macHex;

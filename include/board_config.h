@@ -13,7 +13,9 @@
 #endif
 
 #ifdef BOARD_XIAO_C6
-#define SENSOR D0
+#define BATT D0
+#define SENSOR D2
+#define SENSOR_POWER D3
 #define BUTTON D1
 #endif
 

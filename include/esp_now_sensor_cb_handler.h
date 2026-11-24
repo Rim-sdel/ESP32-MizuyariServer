@@ -5,5 +5,7 @@
 extern volatile bool shouldSleep;
 extern uint64_t sleepTime;
 
-bool sendData(const int soil, enum MsgType type);
+int getMyID();
+bool sendIDData(const int ID, enum MsgType type);
+bool sendData(const int soil, const float battLev, enum MsgType type);
 void onRecvSensor(const esp_now_recv_info_t *info, const uint8_t *data, int len);

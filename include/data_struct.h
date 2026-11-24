@@ -9,6 +9,7 @@ enum MsgType : uint8_t {
   MSG_SERVER_RES,
   MSG_ID_REMOVE,
   MSG_ID_REMOVE_DONE,
+  MSG_LOW_BATT,
 };
 
 inline const uint8_t ID_UNREGISTERED = 255;
@@ -43,6 +44,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
   msgHeader header;
   int sensorRaw;
+  float battLev;
 } sensorMsg;
 
 typedef struct __attribute__((packed)) {

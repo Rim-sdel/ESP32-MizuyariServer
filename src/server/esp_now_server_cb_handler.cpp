@@ -93,6 +93,21 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
     removePod(header.ID);
     return;
   }
+  case MSG_LOW_BATT: {
+    time_t nowTime = getTime();
+    std::string nowTimeStr = getTimeString(nowTime);
+    sensorMsg msg;
+    memcpy(&msg, data, sizeof(sensorMsg));
+    const uint8_t *senderMac = info->src_addr;
+
+    if (int(msg.header.ID) == ID_UNREGISTERED)
+      return;
+
+    updatePots(msg.header.ID, msg.sensorRaw, msg.battLev, nowTimeStr);
+    Serial.printf("[RECV_INFO] %s - [%d] sensorRaw: %d\n", nowTimeStr.c_str(), msg.header.ID, msg.sensorRaw);
+    // ---ここにバッテリー低下用の通知送信関数を呼ぶ！！ ---
+    return;
+  }
   case MSG_SENSOR_DATA: {
     time_t nowTime = getTime();
     std::string nowTimeStr = getTimeString(nowTime);
@@ -101,13 +116,13 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
     const uint8_t *senderMac = info->src_addr;
 
     if (int(msg.header.ID) == ID_UNREGISTERED) {
-      id = IDRegister(senderMac, msg.sensorRaw, nowTimeStr);
+      id = IDRegister(senderMac, msg.sensorRaw, msg.battLev, nowTimeStr);
       if (id == -1) {
         Serial.println("[ID_REGISTER] Failed regist new device.");
         return;
       }
     } else {
-      updatePots(msg.header.ID, msg.sensorRaw, nowTimeStr);
+      updatePots(msg.header.ID, msg.sensorRaw, msg.battLev, nowTimeStr);
       Serial.printf("[RECV_INFO] %s - [%d] sensorRaw: %d\n", nowTimeStr.c_str(), msg.header.ID, msg.sensorRaw);
     }
 

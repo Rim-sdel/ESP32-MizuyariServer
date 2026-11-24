@@ -76,6 +76,7 @@ async function loadPots() {
 			  dry: ${dryBtn} ${editDryBtn}
 			  threshold: ${threshBtn} ${editThreshBtn}
 			</span><br>
+			<span class="batteryLevel">バッテリー残量: ${pot.battLev || "---"}</span><br>
 			<span class="mac">MAC: ${pot.mac}</span><br>
 			${dbgBtn}
             <!--鉢を有効にしたり無効にしたり、削除したりするボタンをつくりたい-->

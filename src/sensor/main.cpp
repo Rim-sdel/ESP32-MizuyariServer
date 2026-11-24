@@ -1,6 +1,6 @@
 #include "board_config.h"
 #include "data_struct.h"
-#include "esp_now_sensor_handler.h"
+#include "esp_now_sensor_cb_handler.h"
 #include "esp_now_sensor_setup.h"
 #include "sensor_handler.h"
 #include <Arduino.h>
@@ -9,7 +9,9 @@
 
 #define uS_TO_S 1000000ULL
 #define SLEEP_TIME 30
+#define LONG_SLEEP_TIME 604800 // 1w
 
+RTC_DATA_ATTR int bootCount;
 // bool lastButtonState = HIGH;
 // bool stableState = HIGH;
 // unsigned long lastDebounceTime = 0;
@@ -30,6 +32,14 @@ void deepSleep(uint64_t sleepTime) {
   esp_deep_sleep_start();
 }
 
+void bootCounter() {
+  if (bootCount == 10) {
+    bootCount = 0;
+    return;
+  }
+  bootCount++;
+}
+
 void setup() {
   pinMode(SENSOR_POWER, OUTPUT);
   digitalWrite(SENSOR_POWER, LOW);
@@ -39,8 +49,18 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
+  bootCounter();
+  if (bootCount == 1) {
+    updateBattLv();
+  }
   espNowSetup();
-  sendData(getSoil(), MSG_SENSOR_DATA);
+
+  if (battLev <= 5) {
+    sendID(getMyID(), MSG_LOW_BATT);
+    deepSleep(LONG_SLEEP_TIME * uS_TO_S);
+  }
+
+  sendData(getSoil(), battLev, MSG_SENSOR_DATA);
   sendTime = millis();
 }
 

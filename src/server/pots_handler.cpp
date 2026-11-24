@@ -31,13 +31,14 @@ void savePots(JsonDocument &doc) {
   }
 }
 
-void updatePots(const int id, const int sensorRaw, std::string lastSeen) {
+void updatePots(const int id, const int sensorRaw, const float battLev, std::string lastSeen) {
   JsonDocument doc = loadPots();
   JsonArray arr = doc.as<JsonArray>();
 
   for (JsonObject obj : arr) {
     if (obj["ID"].as<int>() == id) {
       obj["sensorRaw"] = sensorRaw;
+      obj["battLev"] = battLev;
       obj["lastSeen"] = lastSeen;
       break;
     }

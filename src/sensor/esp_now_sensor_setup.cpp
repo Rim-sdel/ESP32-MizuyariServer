@@ -1,8 +1,7 @@
 #include "board_config.h"
 #include "data_struct.h"
-#include "esp_now_sensor_handler.h"
+#include "esp_now_sensor_cb_handler.h"
 #include "secrets.h"
-#include "sensor_handler.h"
 #include <Arduino.h>
 #include <Preferences.h>
 #include <WiFi.h>
@@ -28,7 +27,7 @@ void setChannel() {
     isSending = true;
     isChannel = false;
 
-    if (!sendData(getSoil(), MSG_SENSOR_DUMMY)) {
+    if (!sendIDData(0, MSG_SENSOR_DUMMY)) {
       Serial.printf("Channel %d: Send failed.\n", i);
       isSending = false;
       continue;

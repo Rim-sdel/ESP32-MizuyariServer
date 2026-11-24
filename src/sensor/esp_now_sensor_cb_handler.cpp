@@ -20,15 +20,23 @@ int getMyId() {
   return savedID;
 }
 
-bool sendData(const int soil, enum MsgType type) {
+bool sendIDData(const int ID, enum MsgType type) {
+  sensorMsg sendMsg;
+  sendMsg = {};
+  sendMsg.header.type = type;
+  sendMsg.header.ID = ID;
+  return esp_now_send(serverAdrr, (const uint8_t *)&sendMsg, sizeof(sendMsg)) == ESP_OK;
+}
+
+bool sendData(const int soil, const float battLev, enum MsgType type) {
   sensorMsg sendMsg;
   sendMsg = {};
   sendMsg.header.type = type;
   sendMsg.header.ID = getMyId();
   sendMsg.sensorRaw = soil;
+  sendMsg.battLev = battLev;
   return esp_now_send(serverAdrr, (const uint8_t *)&sendMsg, sizeof(sendMsg)) == ESP_OK;
 }
-
 void setMyNewID(const int ID) {
   pref.begin(myID, false);
   pref.putInt(myID, ID);
@@ -42,7 +50,7 @@ void removeMyID() {
   pref.remove(myID);
   pref.end();
   Serial.printf("[ID_REGISTER] My ID is removed.");
-  Serial.println(sendData(myOldID, MSG_ID_REMOVE_DONE) ? "[ID_REGISTER] Removed report has been sent to the server." : "[ID_REGISTER] Failed send removed report to the server.");
+  Serial.println(sendIDData(myOldID, MSG_ID_REMOVE_DONE) ? "[ID_REGISTER] Removed report has been sent to the server." : "[ID_REGISTER] Failed send removed report to the server.");
 }
 
 void onRecvSensor(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
