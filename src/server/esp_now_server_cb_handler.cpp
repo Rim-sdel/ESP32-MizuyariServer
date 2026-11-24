@@ -13,6 +13,7 @@
 volatile bool shouldNotify = false;
 int thresholdSoil = 3800;
 int notifyID = -1;
+int notifyMoisture = 0;
 
 void sendNextWake(const uint8_t id, const uint8_t *senderMac) {
   serverMsg msg;
@@ -47,7 +48,11 @@ bool isDryAndUpdateMoisture(const int id) {
 
       obj["moisture"] = moisture;
       savePots(doc);
-      return (moisture < threshold);
+      if (moisture < threshold) {
+        notifyMoisture = moisture;
+        return true;
+      }
+      return false;
     }
   }
   return false;
