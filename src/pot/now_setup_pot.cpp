@@ -48,6 +48,7 @@ void setChannel() {
 void espNowSetup() {
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
+  // WiFi.setTxPower(WIFI_POWER_8_5dBm); // C3
 
   if (esp_now_init() == ESP_OK) {
     DBG_PRINT("Init OK.");

@@ -27,13 +27,16 @@ void onDataReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len
     memcpy(&msg, data, sizeof(msg));
     const uint8_t *senderMac = info->src_addr;
 
-    if (ID == ID_UNREGISTERED) {
+    if (ID == ID_UNREGISTERED || ID >= MAX_POTS || !pot[ID].active) {
       ID = IDRegister(senderMac, msg.sensorRaw, msg.battV, nowTime);
       if (ID == -1) {
         DBG_PRINT("Failed regist new device.");
         return;
       }
     } else {
+      if (!esp_now_is_peer_exist(senderMac)) {
+        addPeerPot(senderMac);
+      }
       updatePots(ID, msg, nowTime);
       DBG_PRINT("Pot%d: sensor raw: %d, battery level: %.3f", ID, msg.sensorRaw, msg.battV);
     }

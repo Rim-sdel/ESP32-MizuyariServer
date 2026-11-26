@@ -60,6 +60,11 @@ void handleDbg() {
 
   server.send(200, "text/plain", "OK");
 }
+void handleReset() {
+  resetAllPots();
+  server.send(200, "text/plain", "OK");
+}
+
 void serverSetup() {
   server.on("/", handleRoot);
   server.on("/pots", getPotsData);
@@ -67,6 +72,7 @@ void serverSetup() {
   server.on("/calibrate", HTTP_POST, handleCalib);
   server.on("/remove", HTTP_POST, handleRemove);
   server.on("/debug", HTTP_POST, handleDbg);
+  server.on("/reset", HTTP_POST, handleReset);
   server.begin();
   DBG_PRINT("Web server start!!");
 }

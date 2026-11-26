@@ -11,6 +11,8 @@ extern const String page = R"del(
     <h1>ESP32 HTTP Mizuyari Server...</h1>
     <h2>鉢リスト</h2>
     <div id="potsList">読込み中…</div>
+    <hr>
+    <button onclick="resetAll()">全データリセット</button>
 
     <script>
 // --- pots.jsonからリストを取得して表示 ---
@@ -218,6 +220,13 @@ async function endDbgMode(ID) {
   });
   loadPots();  } 
 }
+async function resetAll() {
+  if (!confirm("全ての鉢データをリセットします。よろしいですか？")) return;
+  if (!confirm("本当に？この操作は取り消せません。")) return;
+  await fetch("/reset", { method: "POST" });
+  loadPots();
+}
+
 loadPots();
 setInterval(loadPots, 30000);
     </script>

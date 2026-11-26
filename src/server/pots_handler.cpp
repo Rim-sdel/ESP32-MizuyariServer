@@ -210,3 +210,13 @@ void loadPots() {
     i++;
   }
 }
+
+void resetAllPots() {
+  for (int i = 0; i < MAX_POTS; i++) {
+    pot[i] = {};
+  }
+  JsonDocument doc;
+  doc.to<JsonArray>();
+  savePotsJson(doc);
+  DBG_PRINT("All pots data cleared.");
+}

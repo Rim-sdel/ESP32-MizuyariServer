@@ -16,3 +16,4 @@ void updatePotCalib(const int ID, const char *key, const int val);
 void removePot(const int ID);
 void toggleDbg(const int ID, const bool newState);
 void loadPots();
+void resetAllPots();
