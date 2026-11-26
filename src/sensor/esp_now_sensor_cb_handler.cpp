@@ -1,5 +1,5 @@
 #include "data_struct.h"
-#include "secrets.h"
+#include "secretsold.h"
 #include <Arduino.h>
 #include <Preferences.h>
 #include <WiFi.h>
@@ -15,7 +15,7 @@ RTC_DATA_ATTR uint64_t sleepTime;
 
 int getMyId() {
   pref.begin(myID, true);
-  int savedID = pref.getInt(myID, -1);
+  int savedID = pref.getInt(myID, 0);
   pref.end();
   return savedID;
 }
