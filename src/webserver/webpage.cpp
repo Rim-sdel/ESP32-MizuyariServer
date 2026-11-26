@@ -1,13 +1,5 @@
 #include "WString.h"
-#include "data_struct.h"
-#include "esp_now_server_cb_handler.h"
-#include "id_register.h"
-#include "pots_handler.h"
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include <WebServer.h>
 
-WebServer server(80);
 const String page = R"del(
 <!doctype html>
 <html>
@@ -34,12 +26,12 @@ async function loadPots() {
     div.className = "pot";
 
     const moistBtn =
-      pot.moist != null
-        ? pot.moist
+      pot.moistVal != null
+        ? pot.moistVal
         : `<button onclick="setMoist(${pot.ID}, event)">未設定</button>`;
     const dryBtn =
-      pot.dry != null
-        ? pot.dry
+      pot.dryVal != null
+        ? pot.dryVal
         : `<button onclick="setDry(${pot.ID}, event)">未設定</button>`;
     const threshBtn =
       pot.threshold != null
@@ -52,11 +44,11 @@ async function loadPots() {
 	  : `<button onclick="endDbgMode(${pot.ID})">end debug</button>`;
 
 	const editMoistBtn = 
-	  pot.moist != null
+	  pot.moistVal != null
 	  ? `<button onclick="setMoist(${pot.ID}, event)">変更</button>`
 	  : "";
 	const editDryBtn = 
-	  pot.dry != null 
+	  pot.dryVal != null 
 	  ? `<button onclick="setDry(${pot.ID}, event)">変更</button>`
 	  : "";
 	const editThreshBtn =
@@ -108,11 +100,11 @@ async function renamePot(id) {
 // --- キャリブレーション値登録ボタン ---
 
 async function setMoist(id, event) {
-  showCalibPopup(id, "moist", event);
+  showCalibPopup(id, "moistVal", event);
 }
 
 async function setDry(id, event) {
-  showCalibPopup(id, "dry", event);
+  showCalibPopup(id, "dryVal", event);
 }
 
 function showCalibPopup(id, type, event) {
@@ -228,68 +220,3 @@ setInterval(loadPots, 30000);
   </body>
 </html>
 )del";
-
-void handleRoot() { server.send(200, "text/html", page); }
-
-void getPotsData() {
-  String res = loadPotsStr();
-  server.send(200, "text/plain", res);
-}
-
-void handleRename() {
-  JsonDocument doc;
-  deserializeJson(doc, server.arg("plain"));
-  int id = doc["id"];
-  const char *newName = doc["name"];
-
-  updatePotName(id, String(newName));
-  server.send(200, "text/plain", "OK");
-}
-
-void handleCalib() {
-  JsonDocument doc;
-  deserializeJson(doc, server.arg("plain"));
-  int id = doc["id"];
-
-  if (!doc["moist"].isNull()) {
-    updatePotCalib(id, "moist", doc["moist"].as<int>());
-  } else if (!doc["dry"].isNull()) {
-    updatePotCalib(id, "dry", doc["dry"].as<int>());
-  } else if (!doc["threshold"].isNull()) {
-    updatePotCalib(id, "threshold", doc["threshold"].as<int>());
-  }
-
-  server.send(200, "text/plain", "OK");
-}
-
-void handleRemove() {
-  JsonDocument doc;
-  deserializeJson(doc, server.arg("plain"));
-  int id = doc["id"];
-  sendRemoveID(id);
-
-  server.send(200, "text/plain", "OK");
-}
-
-void handleDbg() {
-  JsonDocument doc;
-  deserializeJson(doc, server.arg("plain"));
-  int id = doc["id"];
-  int dbgMode = doc["debugMode"];
-  toggleDbg(id, dbgMode);
-
-  server.send(200, "text/plain", "OK");
-}
-
-void serverSetup() {
-  server.on("/", handleRoot);
-  server.on("/pots", getPotsData);
-  server.on("/rename", HTTP_POST, handleRename);
-  server.on("/calibrate", HTTP_POST, handleCalib);
-  server.on("/remove", HTTP_POST, handleRemove);
-  server.on("/debug", HTTP_POST, handleDbg);
-  server.begin();
-  Serial.println("Web server start!!");
-}
-
-void serverHandle() { server.handleClient(); }

@@ -1,13 +1,18 @@
 #pragma once
-#include <ArduinoJson.h>
 
-JsonDocument loadPots();
+#include "WString.h"
+#include "data_struct.h"
+#include <ArduinoJson.h>
+#include <ctime>
+
+JsonDocument loadPotsJson();
 String loadPotsStr();
-void savePots(JsonDocument &doc);
-void updatePots(const int id, const int sensorRaw, const float battLev, std::string lastSeen);
-void updatePotName(const int id, const String newName);
-void updatePotCalib(const int id, const char *key, const int val);
-std::pair<std::string, int> getPotData(const int id);
-void toggleDbg(const int id, const int dbgMode);
-bool isDbgMode(const int id);
-void removePod(const int id);
+void savePotsJson(JsonDocument &doc);
+void updatePots(const int ID, msgPot msg, const time_t now);
+void updateMoisture(const int ID);
+void updateNotifyState(potData &p);
+void updatePotName(const int ID, const char *newName);
+void updatePotCalib(const int ID, const char *key, const int val);
+void removePot(const int ID);
+void toggleDbg(const int ID, const bool newState);
+void loadPots();

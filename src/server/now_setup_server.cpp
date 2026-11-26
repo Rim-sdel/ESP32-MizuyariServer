@@ -1,54 +1,54 @@
+#include "data_struct.h"
+#include "global.h"
 #include "id_register.h"
+#include "pots_handler.h"
 #include "secrets.h"
 #include <Arduino.h>
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include <pots_handler.h>
 
 void peerSetup() {
-  JsonDocument doc = loadPots();
-  JsonArray arr = doc.as<JsonArray>();
-
-  for (JsonObject obj : arr) {
-    const char *hex = obj["mac"].as<const char *>();
-    uint8_t mac[6];
-    hexToMac(hex, mac);
-    addPeerSensor(mac);
+  for (int i = 0; i < MAX_POTS; i++) {
+    if (!pot[i].active)
+      continue;
+    addPeerPot(pot[i].mac);
   }
-
-  Serial.println("[ESP-NOW] Peer setup done.");
 }
 
-bool espOk() {
-  if (esp_now_init() == ESP_OK) {
-    Serial.println("[ESP-NOW] init: OK");
-    return true;
-  } else {
-    Serial.println("[ESP-NOW] init: ERROR INTERNAL");
-    return false;
+void initPots() {
+  for (int i = 0; i < MAX_POTS; i++) {
+    pot[i] = {};
+    pot[i].active = false;
+    pot[i].ID = -1;
   }
 }
 
 void espNowSetup() {
-  WiFi.mode(WIFI_STA);
   WiFi.setHostname("esp32-Mizuyazi");
+  WiFi.setSleep(false);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
+
   Serial.print("Connecting");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  WiFi.setSleep(false);
   Serial.printf("\nConnected.\nChannel: %d\n", (int)WiFi.channel());
   Serial.print("localIP: ");
   Serial.print(WiFi.localIP());
   Serial.println("");
 
-  if (!espOk()) {
+  if (esp_now_init() == ESP_OK) {
+    DBG_PRINT("Init OK.");
+  } else {
+    DBG_PRINT("Internal Error.");
     return;
   }
 
+  initPots();
+  loadPots();
   peerSetup();
   Serial.printf("STA MAC Address: %s\n", WiFi.macAddress().c_str());
 }

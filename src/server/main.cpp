@@ -1,9 +1,10 @@
-#include "esp_now_server_cb_handler.h"
-#include "esp_now_server_setup.h"
-#include "get_time.h"
+#include "data_struct.h"
 #include "littlefs_setup.h"
-#include "webhook.h"
-#include "webserver_page.h"
+#include "now_receive_cb_server.h"
+#include "now_setup_server.h"
+#include "time_handler.h"
+#include "webhook_handler.h"
+#include "webserver_handler.h"
 #include <Arduino.h>
 
 void setup() {
@@ -15,22 +16,22 @@ void setup() {
   }
 
   espNowSetup();
-  espNowServerCbRegister();
+  espNowServerCBRegister();
 
   timeSetup();
-  serverSetup();
-#ifdef DBGG
-  listRootFiles();
-#endif
+  // serverSetup();
   Serial.println("--------------------");
 }
 
 void loop() {
   serverHandle();
 
-  if (shouldNotify) {
-    shouldNotify = false;
-    sendDiscordMsg(notifyID);
-    notifyID = -1;
+  for (int i = 0; i < MAX_POTS; i++) {
+    auto &p = pot[i];
+    if (!p.debugMode) {
+      if (p.needWater || p.needCharge) {
+        sendWebHook(i);
+      }
+    }
   }
 }
