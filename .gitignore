@@ -9,6 +9,7 @@ data/
 test/
 html_dev/
 secrets.h
+secretsold.h
 compile_commands.json
 
 memo.md
