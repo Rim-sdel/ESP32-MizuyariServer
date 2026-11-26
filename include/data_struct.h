@@ -35,9 +35,9 @@ typedef struct potData {
 
   float battLev;
   time_t lastSeen;
-  bool debugMode;
-  bool needWater;
-  bool needCharge;
+  bool debugMode = false;
+  bool needWater = false;
+  bool needCharge = false;
 } potData;
 
 inline potData pot[MAX_POTS];

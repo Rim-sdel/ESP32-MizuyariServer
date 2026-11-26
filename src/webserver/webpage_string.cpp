@@ -1,6 +1,6 @@
 #include "WString.h"
 
-const String page = R"del(
+extern const String page = R"del(
 <!doctype html>
 <html>
   <head>
@@ -62,7 +62,11 @@ async function loadPots() {
 			<button onclick="renamePot(${pot.ID})">名前変更</button><button onclick="removePot(${pot.ID})">削除</button><br>
 			<span class="moisture">湿度： ${pot.moisture || "---"}％</span>
 			<span class="raw">センサー値: ${pot.sensorRaw || "---"}</span><br>
-			<span class="lastSeen">最終取得: ${pot.lastSeen || "不明"}</span><br>
+			<span class="lastSeen">最終取得: ${
+  pot.lastSeen
+    ? new Date(pot.lastSeen * 1000).toLocaleString()
+    : "不明"
+}</span><br>
 			<span class="calibPot">
 			  moist: ${moistBtn} ${editMoistBtn}
 			  dry: ${dryBtn} ${editDryBtn}
@@ -85,29 +89,29 @@ function removeOld() {
 }
 
 // --- 名前変更ボタンの処理をここに書く ---
-async function renamePot(id) {
+async function renamePot(ID) {
   const newName = prompt("新しい名前を入力:");
   if (!newName) return;
 
   await fetch("/rename", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id, name: newName }),
+    body: JSON.stringify({ ID: ID, name: newName }),
   });
   loadPots();
 }
 
 // --- キャリブレーション値登録ボタン ---
 
-async function setMoist(id, event) {
-  showCalibPopup(id, "moistVal", event);
+async function setMoist(ID, event) {
+  showCalibPopup(ID, "moistVal", event);
 }
 
-async function setDry(id, event) {
-  showCalibPopup(id, "dryVal", event);
+async function setDry(ID, event) {
+  showCalibPopup(ID, "dryVal", event);
 }
 
-function showCalibPopup(id, type, event) {
+function showCalibPopup(ID, type, event) {
   removeOld();
 
   const potDiv = event.target.closest(".pot");
@@ -119,14 +123,14 @@ function showCalibPopup(id, type, event) {
   popup.id = "calib-popup";
   popup.className = "inline-popup";
   popup.innerHTML = `
-    <button onclick="setCalib(${id}, '${type}', ${rawVal})">
+    <button onclick="setCalib(${ID}, '${type}', ${rawVal})">
       現在値:${rawVal}を使う
     </button>
     <span>または</span>
     <input type="number" placeholder="raw値を入力">
     <button onclick="
 	  const val = this.previousElementSibling.value;
-	  if(val) setCalib(${id}, '${type}', Number(val))">
+	  if(val) setCalib(${ID}, '${type}', Number(val))">
       決定
     </button>
     <button onclick="this.parentElement.remove()">キャンセル</button>
@@ -134,8 +138,8 @@ function showCalibPopup(id, type, event) {
   btn.after(popup);
 }
 
-async function setCalib(id, type, val) {
-  const body = { id };
+async function setCalib(ID, type, val) {
+  const body = { ID };
   body[type] = val;
 
   await fetch("/calibrate", {
@@ -148,7 +152,7 @@ async function setCalib(id, type, val) {
 }
 
 // --- thresholdを設定する
-function choiceThresh(id, event) {
+function choiceThresh(ID, event) {
   removeOld();
 
   const btn = event.currentTarget;
@@ -159,49 +163,49 @@ function choiceThresh(id, event) {
   popup.innerHTML = `
     <input type="range" min="0" max="100" value="50" oninput="this.nextElementSibling.textContent = this.value">
     <span>50</span>
-    <button onclick="setThresh(${id}, this)">決定</button>
+    <button onclick="setThresh(${ID}, this)">決定</button>
     <button onclick="this.parentElement.remove()">キャンセル</button>
   `;
   btn.after(popup);
 }
 
-async function setThresh(id, btnEl) {
+async function setThresh(ID, btnEl) {
   const threshold =
     btnEl.parentElement.querySelector("input[type=range]").value;
 
   await fetch("/calibrate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, threshold }),
+    body: JSON.stringify({ ID, threshold }),
   });
   btnEl.parentElement.remove();
   loadPots();
 }
 
 // ---
-async function removePot(id) {
+async function removePot(ID) {
   await fetch("/remove", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id }),
+    body: JSON.stringify({ ID: ID }),
   });
   loadPots();
 }
 
-async function startDbgMode(id) {
+async function startDbgMode(ID) {
   const choice = confirm("デバッグモードに入りますか？");
   if (!choice) {
 	return;
   } else {
-  
+
 	  await fetch("/debug", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id, debugMode: 1 }),
+    body: JSON.stringify({ ID: ID, debugMode: 1 }),
   });
   loadPots();  } 
 }
-async function endDbgMode(id) {
+async function endDbgMode(ID) {
   const choice = confirm("デバッグモードを終了しますか？");
   if (!choice) {
 	return;
@@ -210,7 +214,7 @@ async function endDbgMode(id) {
 	  await fetch("/debug", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id, debugMode: 0 }),
+    body: JSON.stringify({ ID: ID, debugMode: 0 }),
   });
   loadPots();  } 
 }

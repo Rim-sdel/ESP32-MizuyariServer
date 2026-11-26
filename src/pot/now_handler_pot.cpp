@@ -19,7 +19,7 @@ bool sendHeader(const int ID, enum MsgType type) {
 void sendData() {
   msgPot msg;
   msg.header.type = MSG_POT_DATA;
-  msg.header.ID = currentID;
+  msg.header.ID = getMyPrefID();
   msg.sensorRaw = getMoisture();
   msg.battV = lastBattV;
 

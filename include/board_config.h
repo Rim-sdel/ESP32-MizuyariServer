@@ -2,4 +2,4 @@
 
 #define BATT D0
 #define SENSOR D2
-#define SENSOR_POWER D4
+#define SENSOR_POWER D3

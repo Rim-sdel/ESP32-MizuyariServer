@@ -12,22 +12,22 @@ void buildPayload(char *buf, size_t len, const potData &p) {
 
   if (p.needWater && p.needCharge) {
     snprintf(content, sizeof(content),
-             "{\"content\":\"🚨🚨🚨 水も電池もない！🚨🚨🚨\\n"
+             "🚨🚨🚨 水も電池もない！🚨🚨🚨\\n"
              "**%s**\\n"
              "💧土の水分: %d％ (raw: %d)\\n"
-             "🔋バッテリー残量: %f\"}",
+             "🔋バッテリー残量: %f",
              p.name, p.moisture, p.sensorRaw, p.battLev);
   } else if (p.needWater) {
     snprintf(content, sizeof(content),
-             "{\"content\":\"💧💧💧水切れ！💧💧💧\\n"
+             "💧💧💧水切れ！💧💧💧\\n"
              "**%s**\\n"
-             "🌱土の水分: %d％ (raw: %d)🌱\"}",
+             "🌱土の水分: %d％ (raw: %d)🌱",
              p.name, p.moisture, p.sensorRaw);
   } else if (p.needCharge) {
     snprintf(content, sizeof(content),
-             "{\"content\":\"⚡️⚡️⚡️充電切れ！⚡️⚡️⚡️\\n"
+             "⚡️⚡️⚡️充電切れ！⚡️⚡️⚡️\\n"
              "**%s**\\n"
-             "🔋バッテリー残量: %f🔋\"}",
+             "🔋バッテリー残量: %f🔋",
              p.name, p.battLev);
   } else {
     content[0] = '\0';

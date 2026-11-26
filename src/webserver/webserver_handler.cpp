@@ -1,7 +1,8 @@
 #include "WString.h"
+#include "global.h"
 #include "id_register.h"
 #include "pots_handler.h"
-#include "webpage.h"
+#include "webpage_string.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WebServer.h>
@@ -28,12 +29,12 @@ void handleRename() {
 void handleCalib() {
   JsonDocument doc;
   deserializeJson(doc, server.arg("plain"));
-  int ID = doc["id"];
+  int ID = doc["ID"];
 
-  if (!doc["moist"].isNull()) {
-    updatePotCalib(ID, "moist", doc["moist"].as<int>());
-  } else if (!doc["dry"].isNull()) {
-    updatePotCalib(ID, "dry", doc["dry"].as<int>());
+  if (!doc["moistVal"].isNull()) {
+    updatePotCalib(ID, "moistVal", doc["moistVal"].as<int>());
+  } else if (!doc["dryVal"].isNull()) {
+    updatePotCalib(ID, "dryVal", doc["dryVal"].as<int>());
   } else if (!doc["threshold"].isNull()) {
     updatePotCalib(ID, "threshold", doc["threshold"].as<int>());
   }
@@ -44,8 +45,8 @@ void handleCalib() {
 void handleRemove() {
   JsonDocument doc;
   deserializeJson(doc, server.arg("plain"));
-  int ID = doc["id"];
-  sendIDRemoveMsg(ID);
+  int ID = doc["ID"];
+  removePot(ID);
 
   server.send(200, "text/plain", "OK");
 }
@@ -53,7 +54,7 @@ void handleRemove() {
 void handleDbg() {
   JsonDocument doc;
   deserializeJson(doc, server.arg("plain"));
-  int ID = doc["id"];
+  int ID = doc["ID"];
   bool dbgMode = doc["debugMode"].as<bool>();
   toggleDbg(ID, dbgMode);
 
@@ -67,7 +68,7 @@ void serverSetup() {
   server.on("/remove", HTTP_POST, handleRemove);
   server.on("/debug", HTTP_POST, handleDbg);
   server.begin();
-  Serial.println("Web server start!!");
+  DBG_PRINT("Web server start!!");
 }
 
 void serverHandle() { server.handleClient(); }

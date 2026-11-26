@@ -1,6 +1,7 @@
 #include "LittleFS.h"
 #include "data_struct.h"
 #include "global.h"
+#include "id_register.h"
 #include "time_handler.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -57,7 +58,7 @@ void updatePots(const int ID, msgPot msg, const time_t now) {
     if (obj["ID"].as<int>() == ID) {
       obj["sensorRaw"] = msg.sensorRaw;
       obj["battLev"] = msg.battV;
-      obj["lastSeen"] = timeToString(now);
+      obj["lastSeen"] = (long long)now;
       break;
     }
   }
@@ -155,6 +156,7 @@ void removePot(const int ID) {
     }
   }
   savePotsJson(doc);
+  sendIDRemoveMsg(ID);
   p = {};
   DBG_PRINT("Pot%d: Removed.", ID);
 }
@@ -188,11 +190,11 @@ void loadPots() {
     int id = obj["ID"];
 
     auto &p = pot[id];
-    p.active = false;
+    p.active = true;
     p.ID = id;
     strlcpy(p.name, obj["name"] | "未設定", sizeof(p.name));
 
-    const char *macStr = doc["mac"];
+    const char *macStr = obj["mac"];
     sscanf(macStr, "%hhX:%hhX:%hhX:%hhX:%hhX:%hhX", &p.mac[0], &p.mac[1], &p.mac[2], &p.mac[3], &p.mac[4], &p.mac[5]);
     p.sensorRaw = obj["sensorRaw"];
     p.moisture = obj["moisture"];

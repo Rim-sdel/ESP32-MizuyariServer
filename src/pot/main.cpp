@@ -48,9 +48,11 @@ void setup() {
   delay(500);
 
   Serial.println("--------------------");
-  if (lastBattV < lowBattery) {
-    DBG_PRINT("Battery low %3fV. Sleeping...\n", lastBattV);
-    deepSleep(sleepTimeLong * uS_TO_S);
+  if (lastBattV != 0.0) {
+    if (lastBattV < lowBattery) {
+      DBG_PRINT("Battery low %3fV. Sleeping...\n", lastBattV);
+      deepSleep(sleepTimeLong * uS_TO_S);
+    }
   }
 
   bootCounter();

@@ -38,7 +38,7 @@ bool giveNewID(const int newID, const uint8_t mac[6]) {
 int IDRegister(const uint8_t senderMac[6], const int sensorRaw, const float battLev, const time_t now) {
   DBG_PRINT("Start ID register.");
   for (int i = 0; i < MAX_POTS; i++) {
-    if (pot[i].mac == senderMac) {
+    if (memcmp(pot[i].mac, senderMac, sizeof(pot[i].mac)) == 0) {
       DBG_PRINT("Already registerd, Skipping.");
       return i;
     }
@@ -46,9 +46,10 @@ int IDRegister(const uint8_t senderMac[6], const int sensorRaw, const float batt
 
   int newID = -1;
   for (int i = 0; i < MAX_POTS; i++) {
-    if (pot[i].active == false)
+    if (pot[i].active == false) {
       newID = i;
-    break;
+      break;
+    }
   }
   if (newID == -1)
     return -1;
