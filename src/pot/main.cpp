@@ -9,9 +9,10 @@
 #include "sensor_reader.h"
 #include <Arduino.h>
 #include <WiFi.h>
+#include <cstdint>
 
 const int sleepTimeLong = 43200; // 12h
-int nextSleepTime;
+uint64_t nextSleepTime;
 bool shouldSleep = false;
 
 RTC_DATA_ATTR float lastBattV;
